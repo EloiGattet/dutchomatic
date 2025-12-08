@@ -1,0 +1,6 @@
+{
+  "type": "simulator",
+  "output_dir": "output",
+  "device": "/dev/usb/lp0",
+  "width": 58
+}

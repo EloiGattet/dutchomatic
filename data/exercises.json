@@ -1,0 +1,49 @@
+[
+  {
+    "id": "ex_0001",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les animaux",
+    "prompt": "Traduis en français (ou complète) :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "de hond",
+        "question_fr": "le ____",
+        "answer": "chien",
+        "img": "🐕"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "de kat",
+        "question_fr": "le ____",
+        "answer": "chat",
+        "img": "🐈"
+      }
+    ],
+    "explanations": "'de' est l'article défini commun (m./f.)",
+    "tags": ["animaux", "base", "A1"]
+  },
+  {
+    "id": "ex_0002",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les couleurs",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "rood",
+        "question_fr": "____",
+        "answer": "rouge"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "blauw",
+        "question_fr": "____",
+        "answer": "bleu"
+      }
+    ],
+    "tags": ["couleurs", "A1"]
+  }
+]

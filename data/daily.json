@@ -1,0 +1,20 @@
+[
+  {
+    "id": "exp_001",
+    "kind": "expression",
+    "nl": "Dat klopt!",
+    "fr": "C'est exact !"
+  },
+  {
+    "id": "fact_001",
+    "kind": "fact",
+    "nl": "Nederland heeft 12 provincies",
+    "fr": "Les Pays-Bas ont 12 provinces"
+  },
+  {
+    "id": "quote_001",
+    "kind": "quote",
+    "nl": "Alles komt goed",
+    "fr": "Tout va bien se passer"
+  }
+]
