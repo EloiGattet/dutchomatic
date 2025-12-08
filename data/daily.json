@@ -16,5 +16,125 @@
     "kind": "quote",
     "nl": "Alles komt goed",
     "fr": "Tout va bien se passer"
+  },
+  {
+    "id": "exp_002",
+    "kind": "expression",
+    "nl": "Alsjeblieft",
+    "fr": "S'il te plaît / De rien"
+  },
+  {
+    "id": "exp_003",
+    "kind": "expression",
+    "nl": "Geen probleem",
+    "fr": "Pas de problème"
+  },
+  {
+    "id": "exp_004",
+    "kind": "expression",
+    "nl": "Hoe gaat het?",
+    "fr": "Comment ça va ?"
+  },
+  {
+    "id": "exp_005",
+    "kind": "expression",
+    "nl": "Veel succes!",
+    "fr": "Bonne chance !"
+  },
+  {
+    "id": "exp_006",
+    "kind": "expression",
+    "nl": "Ik begrijp het niet",
+    "fr": "Je ne comprends pas"
+  },
+  {
+    "id": "exp_007",
+    "kind": "expression",
+    "nl": "Spreek je Engels?",
+    "fr": "Parles-tu anglais ?"
+  },
+  {
+    "id": "exp_008",
+    "kind": "expression",
+    "nl": "Wat betekent dit?",
+    "fr": "Qu'est-ce que cela signifie ?"
+  },
+  {
+    "id": "fact_002",
+    "kind": "fact",
+    "nl": "Amsterdam is de hoofdstad van Nederland",
+    "fr": "Amsterdam est la capitale des Pays-Bas"
+  },
+  {
+    "id": "fact_003",
+    "kind": "fact",
+    "nl": "Het Nederlands wordt gesproken door ongeveer 24 miljoen mensen",
+    "fr": "Le néerlandais est parlé par environ 24 millions de personnes"
+  },
+  {
+    "id": "fact_004",
+    "kind": "fact",
+    "nl": "Nederland heeft meer fietsen dan inwoners",
+    "fr": "Les Pays-Bas ont plus de vélos que d'habitants"
+  },
+  {
+    "id": "fact_005",
+    "kind": "fact",
+    "nl": "De Nederlandse vlag heeft drie horizontale strepen: rood, wit en blauw",
+    "fr": "Le drapeau néerlandais a trois bandes horizontales : rouge, blanc et bleu"
+  },
+  {
+    "id": "fact_006",
+    "kind": "fact",
+    "nl": "Tulpen zijn het symbool van Nederland",
+    "fr": "Les tulipes sont le symbole des Pays-Bas"
+  },
+  {
+    "id": "fact_007",
+    "kind": "fact",
+    "nl": "Nederland ligt grotendeels onder zeeniveau",
+    "fr": "Les Pays-Bas se trouvent en grande partie sous le niveau de la mer"
+  },
+  {
+    "id": "quote_002",
+    "kind": "quote",
+    "nl": "Oefening baart kunst",
+    "fr": "C'est en forgeant qu'on devient forgeron"
+  },
+  {
+    "id": "quote_003",
+    "kind": "quote",
+    "nl": "Elke dag is een nieuwe kans",
+    "fr": "Chaque jour est une nouvelle chance"
+  },
+  {
+    "id": "quote_004",
+    "kind": "quote",
+    "nl": "Kleine stapjes leiden tot grote resultaten",
+    "fr": "Les petits pas mènent à de grands résultats"
+  },
+  {
+    "id": "quote_005",
+    "kind": "quote",
+    "nl": "Leren is een reis, geen bestemming",
+    "fr": "Apprendre est un voyage, pas une destination"
+  },
+  {
+    "id": "quote_006",
+    "kind": "quote",
+    "nl": "Fouten maken is menselijk",
+    "fr": "Faire des erreurs est humain"
+  },
+  {
+    "id": "quote_007",
+    "kind": "quote",
+    "nl": "Geduld is een deugd",
+    "fr": "La patience est une vertu"
+  },
+  {
+    "id": "quote_008",
+    "kind": "quote",
+    "nl": "Begin bij het begin",
+    "fr": "Commence par le commencement"
   }
 ]

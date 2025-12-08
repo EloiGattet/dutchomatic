@@ -45,5 +45,601 @@
       }
     ],
     "tags": ["couleurs", "A1"]
+  },
+  {
+    "id": "ex_0003",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les nombres de 1 à 10",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "een",
+        "question_fr": "____",
+        "answer": "un"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "twee",
+        "question_fr": "____",
+        "answer": "deux"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "drie",
+        "question_fr": "____",
+        "answer": "trois"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "vier",
+        "question_fr": "____",
+        "answer": "quatre"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "vijf",
+        "question_fr": "____",
+        "answer": "cinq"
+      }
+    ],
+    "tags": ["nombres", "A1"]
+  },
+  {
+    "id": "ex_0004",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "La famille",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "de moeder",
+        "question_fr": "la ____",
+        "answer": "mère"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "de vader",
+        "question_fr": "le ____",
+        "answer": "père"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "het kind",
+        "question_fr": "l'____ / le ____",
+        "answer": "enfant"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "de broer",
+        "question_fr": "le ____",
+        "answer": "frère"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "de zus",
+        "question_fr": "la ____",
+        "answer": "sœur"
+      }
+    ],
+    "tags": ["famille", "A1"]
+  },
+  {
+    "id": "ex_0005",
+    "niveau": "A1",
+    "type": "grammar",
+    "title": "Les articles définis : de / het",
+    "prompt": "Choisis le bon article :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "____ boek",
+        "question_fr": "le livre",
+        "answer": "het",
+        "options": ["de", "het"]
+      },
+      {
+        "qid": "q2",
+        "question_nl": "____ tafel",
+        "question_fr": "la table",
+        "answer": "de",
+        "options": ["de", "het"]
+      },
+      {
+        "qid": "q3",
+        "question_nl": "____ huis",
+        "question_fr": "la maison",
+        "answer": "het",
+        "options": ["de", "het"]
+      },
+      {
+        "qid": "q4",
+        "question_nl": "____ stoel",
+        "question_fr": "la chaise",
+        "answer": "de",
+        "options": ["de", "het"]
+      }
+    ],
+    "explanations": "'de' est utilisé pour les noms communs (m./f.), 'het' pour les noms neutres",
+    "tags": ["grammaire", "articles", "A1"]
+  },
+  {
+    "id": "ex_0006",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les jours de la semaine",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "maandag",
+        "question_fr": "____",
+        "answer": "lundi"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "dinsdag",
+        "question_fr": "____",
+        "answer": "mardi"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "woensdag",
+        "question_fr": "____",
+        "answer": "mercredi"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "donderdag",
+        "question_fr": "____",
+        "answer": "jeudi"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "vrijdag",
+        "question_fr": "____",
+        "answer": "vendredi"
+      }
+    ],
+    "tags": ["temps", "jours", "A1"]
+  },
+  {
+    "id": "ex_0007",
+    "niveau": "A1",
+    "type": "conjugation",
+    "title": "Le verbe 'zijn' (être) au présent",
+    "prompt": "Conjugue le verbe 'zijn' :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "Ik ____",
+        "question_fr": "Je suis",
+        "answer": "ben"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "Jij ____",
+        "question_fr": "Tu es",
+        "answer": "bent"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "Hij ____",
+        "question_fr": "Il est",
+        "answer": "is"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "Wij ____",
+        "question_fr": "Nous sommes",
+        "answer": "zijn"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "Zij ____",
+        "question_fr": "Ils/Elles sont",
+        "answer": "zijn"
+      }
+    ],
+    "explanations": "Le verbe 'zijn' est irrégulier. Ik ben, jij bent, hij/zij/het is, wij/jullie/zij zijn",
+    "tags": ["conjugaison", "verbes", "A1"]
+  },
+  {
+    "id": "ex_0008",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les aliments de base",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "het brood",
+        "question_fr": "le ____",
+        "answer": "pain"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "de melk",
+        "question_fr": "le ____",
+        "answer": "lait"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "de kaas",
+        "question_fr": "le ____",
+        "answer": "fromage"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "het ei",
+        "question_fr": "l'____",
+        "answer": "œuf"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "de appel",
+        "question_fr": "la ____",
+        "answer": "pomme"
+      }
+    ],
+    "tags": ["nourriture", "A1"]
+  },
+  {
+    "id": "ex_0009",
+    "niveau": "A1",
+    "type": "conjugation",
+    "title": "Le verbe 'hebben' (avoir) au présent",
+    "prompt": "Conjugue le verbe 'hebben' :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "Ik ____",
+        "question_fr": "J'ai",
+        "answer": "heb"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "Jij ____",
+        "question_fr": "Tu as",
+        "answer": "hebt"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "Hij ____",
+        "question_fr": "Il a",
+        "answer": "heeft"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "Wij ____",
+        "question_fr": "Nous avons",
+        "answer": "hebben"
+      }
+    ],
+    "explanations": "Le verbe 'hebben' est irrégulier. Ik heb, jij hebt, hij/zij/het heeft, wij/jullie/zij hebben",
+    "tags": ["conjugaison", "verbes", "A1"]
+  },
+  {
+    "id": "ex_0010",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les salutations",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "Hallo",
+        "question_fr": "____",
+        "answer": "Bonjour / Salut"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "Goedemorgen",
+        "question_fr": "____",
+        "answer": "Bonjour (matin)"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "Goedenavond",
+        "question_fr": "____",
+        "answer": "Bonsoir"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "Tot ziens",
+        "question_fr": "____",
+        "answer": "Au revoir"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "Dank je wel",
+        "question_fr": "____",
+        "answer": "Merci beaucoup"
+      }
+    ],
+    "tags": ["salutations", "communication", "A1"]
+  },
+  {
+    "id": "ex_0011",
+    "niveau": "A1",
+    "type": "grammar",
+    "title": "Les pronoms personnels",
+    "prompt": "Traduis le pronom en néerlandais :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "____",
+        "question_fr": "Je",
+        "answer": "Ik"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "____",
+        "question_fr": "Tu",
+        "answer": "Jij"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "____",
+        "question_fr": "Il",
+        "answer": "Hij"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "____",
+        "question_fr": "Elle",
+        "answer": "Zij"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "____",
+        "question_fr": "Nous",
+        "answer": "Wij"
+      },
+      {
+        "qid": "q6",
+        "question_nl": "____",
+        "question_fr": "Ils / Elles",
+        "answer": "Zij"
+      }
+    ],
+    "tags": ["grammaire", "pronoms", "A1"]
+  },
+  {
+    "id": "ex_0012",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les parties du corps",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "het hoofd",
+        "question_fr": "la ____",
+        "answer": "tête"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "de hand",
+        "question_fr": "la ____",
+        "answer": "main"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "de voet",
+        "question_fr": "le ____",
+        "answer": "pied"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "het oog",
+        "question_fr": "l'____",
+        "answer": "œil"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "de neus",
+        "question_fr": "le ____",
+        "answer": "nez"
+      }
+    ],
+    "tags": ["corps", "A1"]
+  },
+  {
+    "id": "ex_0013",
+    "niveau": "A1",
+    "type": "conjugation",
+    "title": "Le verbe 'gaan' (aller) au présent",
+    "prompt": "Conjugue le verbe 'gaan' :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "Ik ____",
+        "question_fr": "Je vais",
+        "answer": "ga"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "Jij ____",
+        "question_fr": "Tu vas",
+        "answer": "gaat"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "Hij ____",
+        "question_fr": "Il va",
+        "answer": "gaat"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "Wij ____",
+        "question_fr": "Nous allons",
+        "answer": "gaan"
+      }
+    ],
+    "explanations": "Le verbe 'gaan' est irrégulier. Ik ga, jij gaat, hij/zij/het gaat, wij/jullie/zij gaan",
+    "tags": ["conjugaison", "verbes", "A1"]
+  },
+  {
+    "id": "ex_0014",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les vêtements",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "de broek",
+        "question_fr": "le ____",
+        "answer": "pantalon"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "het shirt",
+        "question_fr": "le ____",
+        "answer": "t-shirt"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "de schoen",
+        "question_fr": "la ____",
+        "answer": "chaussure"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "de jas",
+        "question_fr": "le ____",
+        "answer": "manteau"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "de hoed",
+        "question_fr": "le ____",
+        "answer": "chapeau"
+      }
+    ],
+    "tags": ["vêtements", "A1"]
+  },
+  {
+    "id": "ex_0015",
+    "niveau": "A1",
+    "type": "translation",
+    "title": "Phrases simples",
+    "prompt": "Traduis la phrase en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "Ik ben blij",
+        "question_fr": "____",
+        "answer": "Je suis content"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "Hij heeft een boek",
+        "question_fr": "____",
+        "answer": "Il a un livre"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "Wij gaan naar huis",
+        "question_fr": "____",
+        "answer": "Nous allons à la maison"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "Zij is moe",
+        "question_fr": "____",
+        "answer": "Elle est fatiguée"
+      }
+    ],
+    "tags": ["traduction", "phrases", "A1"]
+  },
+  {
+    "id": "ex_0016",
+    "niveau": "A1",
+    "type": "vocabulary",
+    "title": "Les meubles",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "de tafel",
+        "question_fr": "la ____",
+        "answer": "table"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "de stoel",
+        "question_fr": "la ____",
+        "answer": "chaise"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "het bed",
+        "question_fr": "le ____",
+        "answer": "lit"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "de deur",
+        "question_fr": "la ____",
+        "answer": "porte"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "het raam",
+        "question_fr": "la ____",
+        "answer": "fenêtre"
+      }
+    ],
+    "tags": ["maison", "meubles", "A1"]
+  },
+  {
+    "id": "ex_0017",
+    "niveau": "A1",
+    "type": "grammar",
+    "title": "Les adjectifs : bon / mauvais",
+    "prompt": "Traduis en français :",
+    "items": [
+      {
+        "qid": "q1",
+        "question_nl": "goed",
+        "question_fr": "____",
+        "answer": "bon"
+      },
+      {
+        "qid": "q2",
+        "question_nl": "slecht",
+        "question_fr": "____",
+        "answer": "mauvais"
+      },
+      {
+        "qid": "q3",
+        "question_nl": "mooi",
+        "question_fr": "____",
+        "answer": "beau / joli"
+      },
+      {
+        "qid": "q4",
+        "question_nl": "leuk",
+        "question_fr": "____",
+        "answer": "sympa / amusant"
+      },
+      {
+        "qid": "q5",
+        "question_nl": "groot",
+        "question_fr": "____",
+        "answer": "grand"
+      },
+      {
+        "qid": "q6",
+        "question_nl": "klein",
+        "question_fr": "____",
+        "answer": "petit"
+      }
+    ],
+    "tags": ["adjectifs", "A1"]
   }
 ]
