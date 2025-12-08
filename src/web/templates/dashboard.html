@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Dashboard</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Niveau actuel</h3>
+            <p class="stat-value">{{ niveau_actuel }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>XP</h3>
+            <p class="stat-value">{{ xp }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total tickets</h3>
+            <p class="stat-value">{{ compteur_total }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Exercices</h3>
+            <p class="stat-value">{{ total_exercises }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Daily items</h3>
+            <p class="stat-value">{{ total_daily }}</p>
+        </div>
+    </div>
+
+    {% if last_exercise %}
+    <div class="section">
+        <h3>Dernier exercice</h3>
+        <div class="card">
+            <h4>{{ last_exercise.title }}</h4>
+            <p><strong>Niveau:</strong> {{ last_exercise.niveau }} | <strong>Type:</strong> {{ last_exercise.type }}</p>
+            <a href="{{ url_for('exercises.view_exercise', exercise_id=last_exercise.id) }}">Voir détails</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <h3>Derniers tirages (10)</h3>
+        {% if recent_history %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Exercice</th>
+                    <th>Avec réponses</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in recent_history %}
+                <tr>
+                    <td>{{ entry.printed_at[:19] if entry.printed_at else '-' }}</td>
+                    <td>{{ entry.exercise_id }}</td>
+                    <td>{{ 'Oui' if entry.with_answers else 'Non' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Aucun tirage pour le moment.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

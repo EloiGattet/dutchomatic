@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Paramètres - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <h2>Paramètres</h2>
+    
+    <form method="post" class="form">
+        <div class="section">
+            <h3>Politique de tirage</h3>
+            <div class="form-group">
+                <label>Mode</label>
+                <select name="draw_policy">
+                    <option value="strict" {% if settings.draw_policy == 'strict' %}selected{% endif %}>Strict (≤ niveau actuel)</option>
+                    <option value="mix" {% if settings.draw_policy == 'mix' %}selected{% endif %}>Mix</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Pourcentage niveau actuel (mix)</label>
+                <input type="number" name="draw_mix_percent" value="{{ settings.draw_mix_percent }}" min="0" max="100">
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Seuils de level-up</h3>
+            {% for level in ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] %}
+            <div class="form-group">
+                <label>{{ level }}</label>
+                <input type="number" name="threshold_{{ level }}" value="{{ settings.level_thresholds[level] }}" min="0">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="section">
+            <h3>IA</h3>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="ai_enabled" {% if settings.ai_enabled %}checked{% endif %}>
+                    Activer la génération IA
+                </label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Imprimante</h3>
+            <div class="form-group">
+                <label>Type</label>
+                <select name="printer_type">
+                    <option value="simulator" {% if settings.printer.type == 'simulator' %}selected{% endif %}>Simulateur</option>
+                    <option value="usb" {% if settings.printer.type == 'usb' %}selected{% endif %}>USB</option>
+                    <option value="network" {% if settings.printer.type == 'network' %}selected{% endif %}>Réseau</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Device</label>
+                <input type="text" name="printer_device" value="{{ settings.printer.device }}">
+            </div>
+            <div class="form-group">
+                <label>Largeur (colonnes)</label>
+                <input type="number" name="printer_width" value="{{ settings.printer.width }}" min="1">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Sauvegarder</button>
+        </div>
+    </form>
+
+    <div class="section">
+        <h3>État actuel</h3>
+        <div class="card">
+            <p><strong>Niveau:</strong> {{ state.niveau_actuel }}</p>
+            <p><strong>XP:</strong> {{ state.xp }}</p>
+            <p><strong>Compteur total:</strong> {{ state.compteur_total }}</p>
+            <p><strong>Dernier exercice:</strong> {{ state.last_exercise_id or '-' }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

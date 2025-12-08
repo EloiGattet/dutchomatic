@@ -52,6 +52,16 @@ class StorageInterface(ABC):
         pass
 
     @abstractmethod
+    def update_daily(self, daily_id: str, daily: Dict[str, Any]) -> bool:
+        """Update an existing daily item. Returns True if successful."""
+        pass
+
+    @abstractmethod
+    def delete_daily(self, daily_id: str) -> bool:
+        """Delete a daily item. Returns True if successful."""
+        pass
+
+    @abstractmethod
     def get_state(self) -> Dict[str, Any]:
         """Get the current state (history, last_exercise_id, niveau_actuel, xp, compteur_total)."""
         pass

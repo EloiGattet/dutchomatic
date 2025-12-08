@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ exercise.title }} - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="exercise-detail">
+    <div class="page-header">
+        <h2>{{ exercise.title }}</h2>
+        <div>
+            <a href="{{ url_for('exercises.edit_exercise', exercise_id=exercise.id) }}" class="btn btn-primary">Modifier</a>
+            <a href="{{ url_for('exercises.list_exercises') }}" class="btn">Retour</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <p><strong>ID:</strong> {{ exercise.id }}</p>
+        <p><strong>Niveau:</strong> {{ exercise.niveau }}</p>
+        <p><strong>Type:</strong> {{ exercise.type }}</p>
+        <p><strong>Tags:</strong> {{ exercise.tags|join(', ') if exercise.tags else '-' }}</p>
+        {% if exercise.prompt %}
+        <p><strong>Prompt:</strong> {{ exercise.prompt }}</p>
+        {% endif %}
+        {% if exercise.explanations %}
+        <p><strong>Explications:</strong> {{ exercise.explanations }}</p>
+        {% endif %}
+    </div>
+
+    {% if exercise['items'] and exercise['items']|length > 0 %}
+    <div class="section">
+        <h3>Items</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Question NL</th>
+                    <th>Question FR</th>
+                    <th>Réponse</th>
+                    {% if exercise['items'][0] and exercise['items'][0].get('img') %}
+                    <th>Image</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in exercise['items'] %}
+                <tr>
+                    <td>{{ item.get('question_nl', '-') }}</td>
+                    <td>{{ item.get('question_fr', '-') }}</td>
+                    <td>{{ item.get('answer', '-') }}</td>
+                    {% if exercise['items'][0] and exercise['items'][0].get('img') %}
+                    <td>{{ item.get('img', '-') }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

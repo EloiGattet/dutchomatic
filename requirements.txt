@@ -1,8 +1,6 @@
 # Dutch-o-matic - Requirements
 # Python 3.8+
 
-# Core dependencies (none for storage layer)
-# Future dependencies will be added here:
-# - flask (for web admin)
-# - escpos (for printer) - optional, fallback available
+# Core dependencies
 python-escpos>=3.0
+flask>=2.0.0

@@ -1,0 +1,17 @@
+[Unit]
+Description=Dutch-o-matic Web Admin Server
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/duch-o-matic
+Environment="PATH=/home/pi/duch-o-matic/venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/home/pi/duch-o-matic/venv/bin/python /home/pi/duch-o-matic/run_server.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Daily - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="daily-page">
+    <div class="page-header">
+        <h2>Daily Items</h2>
+        <a href="{{ url_for('daily.create_daily') }}" class="btn btn-primary">+ Nouvel élément</a>
+    </div>
+
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <select name="kind">
+                <option value="">Tous les types</option>
+                <option value="expression" {% if filter_kind == 'expression' %}selected{% endif %}>Expression</option>
+                <option value="fact" {% if filter_kind == 'fact' %}selected{% endif %}>Fait</option>
+                <option value="quote" {% if filter_kind == 'quote' %}selected{% endif %}>Citation</option>
+            </select>
+            <button type="submit" class="btn">Filtrer</button>
+            <a href="{{ url_for('daily.list_daily') }}" class="btn">Réinitialiser</a>
+        </form>
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('daily.export_daily') }}" class="btn btn-secondary">Export JSON</a>
+        <button onclick="showImportModal()" class="btn btn-secondary">Import JSON</button>
+    </div>
+
+    {% if daily_items %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>NL</th>
+                <th>FR</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in daily_items %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.kind }}</td>
+                <td>{{ item.nl }}</td>
+                <td>{{ item.fr }}</td>
+                <td>
+                    <a href="{{ url_for('daily.edit_daily', daily_id=item.id) }}" class="btn btn-sm">Modifier</a>
+                    <form method="post" action="{{ url_for('daily.delete_daily', daily_id=item.id) }}" style="display:inline;" onsubmit="return confirm('Supprimer cet élément?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Aucun élément daily trouvé.</p>
+    {% endif %}
+</div>
+
+<div id="importModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="hideImportModal()">&times;</span>
+        <h3>Import JSON</h3>
+        <form method="post" action="{{ url_for('daily.import_daily') }}">
+            <textarea name="json_data" rows="10" style="width:100%;" placeholder='[{"id": "exp_001", ...}]'></textarea>
+            <button type="submit" class="btn btn-primary">Importer</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'block';
+}
+function hideImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
+</script>
+{% endblock %}

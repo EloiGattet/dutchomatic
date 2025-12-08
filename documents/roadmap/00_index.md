@@ -2,8 +2,8 @@
 
 ## Statut global
 - 🟡 **En cours** : Aucune mission démarrée
-- ✅ **Terminé** : 3/7 missions
-- ⏳ **En attente** : 4 missions
+- ✅ **Terminé** : 4/7 missions
+- ⏳ **En attente** : 3 missions
 
 ---
 
@@ -23,7 +23,7 @@
 ### Phase 3 : Interface Admin
 | # | Mission | Agent | Statut | Description |
 |---|---------|-------|--------|-------------|
-| 04 | Interface Web Admin | Admin | ⏳ | Dashboard, CRUD exercices/daily, paramètres |
+| 04 | Interface Web Admin | Admin | ✅ | Dashboard, CRUD exercices/daily, paramètres |
 
 ### Phase 4 : Intégration Hardware
 | # | Mission | Agent | Statut | Description |

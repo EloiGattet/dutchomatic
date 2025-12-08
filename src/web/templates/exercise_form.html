@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{% if exercise %}Modifier{% else %}Créer{% endif %} Exercice - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>{% if exercise %}Modifier{% else %}Créer{% endif %} un exercice</h2>
+    
+    <form method="post" class="form">
+        <div class="form-group">
+            <label>ID *</label>
+            <input type="text" name="id" value="{{ exercise.id if exercise else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Titre *</label>
+            <input type="text" name="title" value="{{ exercise.title if exercise else '' }}" required>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Niveau *</label>
+                <select name="niveau" required>
+                    {% for level in ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] %}
+                    <option value="{{ level }}" {% if exercise and exercise.niveau == level %}selected{% endif %}>{{ level }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Type *</label>
+                <select name="type" required>
+                    {% for type in ['vocabulary', 'grammar', 'reading', 'quiz'] %}
+                    <option value="{{ type }}" {% if exercise and exercise.type == type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Prompt</label>
+            <input type="text" name="prompt" value="{{ exercise.prompt if exercise else '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label>Items (JSON)</label>
+            <textarea name="items" rows="10">{% if exercise and exercise.items %}{{ exercise.items|tojson }}{% else %}[]{% endif %}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Explications</label>
+            <textarea name="explanations" rows="3">{{ exercise.explanations if exercise else '' }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Tags (JSON array)</label>
+            <input type="text" name="tags" value="{% if exercise and exercise.tags %}{{ exercise.tags|tojson }}{% else %}[]{% endif %}">
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% if exercise %}Modifier{% else %}Créer{% endif %}</button>
+            <a href="{{ url_for('exercises.list_exercises') }}" class="btn">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

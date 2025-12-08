@@ -153,6 +153,30 @@ class JSONStorage(StorageInterface):
         self._write_json(self.daily_file, daily_items)
         return validated['id']
 
+    def update_daily(self, daily_id: str, daily: Dict[str, Any]) -> bool:
+        """Update an existing daily item."""
+        validated = validate_daily(daily)
+        if validated['id'] != daily_id:
+            raise ValueError("Daily ID mismatch")
+        
+        daily_items = self._read_json(self.daily_file)
+        for i, item in enumerate(daily_items):
+            if item.get('id') == daily_id:
+                daily_items[i] = validated
+                self._write_json(self.daily_file, daily_items)
+                return True
+        return False
+
+    def delete_daily(self, daily_id: str) -> bool:
+        """Delete a daily item."""
+        daily_items = self._read_json(self.daily_file)
+        original_len = len(daily_items)
+        daily_items = [item for item in daily_items if item.get('id') != daily_id]
+        if len(daily_items) < original_len:
+            self._write_json(self.daily_file, daily_items)
+            return True
+        return False
+
     # State methods
     def get_state(self) -> Dict[str, Any]:
         """Get the current state."""

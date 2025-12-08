@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{% if daily %}Modifier{% else %}Créer{% endif %} Daily - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>{% if daily %}Modifier{% else %}Créer{% endif %} un élément daily</h2>
+    
+    <form method="post" class="form">
+        <div class="form-group">
+            <label>ID *</label>
+            <input type="text" name="id" value="{{ daily.id if daily else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Type *</label>
+            <select name="kind" required>
+                <option value="">Sélectionner...</option>
+                <option value="expression" {% if daily and daily.kind == 'expression' %}selected{% endif %}>Expression</option>
+                <option value="fact" {% if daily and daily.kind == 'fact' %}selected{% endif %}>Fait</option>
+                <option value="quote" {% if daily and daily.kind == 'quote' %}selected{% endif %}>Citation</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Néerlandais (NL) *</label>
+            <textarea name="nl" rows="3" required>{{ daily.nl if daily else '' }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Français (FR) *</label>
+            <textarea name="fr" rows="3" required>{{ daily.fr if daily else '' }}</textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% if daily %}Modifier{% else %}Créer{% endif %}</button>
+            <a href="{{ url_for('daily.list_daily') }}" class="btn">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

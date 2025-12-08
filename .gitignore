@@ -44,6 +44,9 @@ htmlcov/
 # Project specific
 output/
 *.log
+logs/
+.server.pid
+.restart
 
 # OS
 .DS_Store

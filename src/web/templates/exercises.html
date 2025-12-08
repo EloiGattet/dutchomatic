@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Exercices - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="exercises-page">
+    <div class="page-header">
+        <h2>Exercices</h2>
+        <a href="{{ url_for('exercises.create_exercise') }}" class="btn btn-primary">+ Nouvel exercice</a>
+    </div>
+
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <select name="niveau">
+                <option value="">Tous les niveaux</option>
+                <option value="A1" {% if filters.niveau == 'A1' %}selected{% endif %}>A1</option>
+                <option value="A2" {% if filters.niveau == 'A2' %}selected{% endif %}>A2</option>
+                <option value="B1" {% if filters.niveau == 'B1' %}selected{% endif %}>B1</option>
+                <option value="B2" {% if filters.niveau == 'B2' %}selected{% endif %}>B2</option>
+                <option value="C1" {% if filters.niveau == 'C1' %}selected{% endif %}>C1</option>
+                <option value="C2" {% if filters.niveau == 'C2' %}selected{% endif %}>C2</option>
+            </select>
+            <select name="type">
+                <option value="">Tous les types</option>
+                <option value="vocabulary" {% if filters.type == 'vocabulary' %}selected{% endif %}>Vocabulaire</option>
+                <option value="grammar" {% if filters.type == 'grammar' %}selected{% endif %}>Grammaire</option>
+                <option value="reading" {% if filters.type == 'reading' %}selected{% endif %}>Lecture</option>
+                <option value="quiz" {% if filters.type == 'quiz' %}selected{% endif %}>Quiz</option>
+            </select>
+            <button type="submit" class="btn">Filtrer</button>
+            <a href="{{ url_for('exercises.list_exercises') }}" class="btn">Réinitialiser</a>
+        </form>
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('exercises.export_exercises') }}" class="btn btn-secondary">Export JSON</a>
+        <button onclick="showImportModal()" class="btn btn-secondary">Import JSON</button>
+    </div>
+
+    {% if exercises %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Niveau</th>
+                <th>Type</th>
+                <th>Tags</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exercise in exercises %}
+            <tr>
+                <td>{{ exercise.id }}</td>
+                <td>{{ exercise.title }}</td>
+                <td>{{ exercise.niveau }}</td>
+                <td>{{ exercise.type }}</td>
+                <td>{{ exercise.tags|join(', ') if exercise.tags else '-' }}</td>
+                <td>
+                    <a href="{{ url_for('exercises.view_exercise', exercise_id=exercise.id) }}" class="btn btn-sm">Voir</a>
+                    <a href="{{ url_for('exercises.edit_exercise', exercise_id=exercise.id) }}" class="btn btn-sm">Modifier</a>
+                    <form method="post" action="{{ url_for('exercises.delete_exercise', exercise_id=exercise.id) }}" style="display:inline;" onsubmit="return confirm('Supprimer cet exercice?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Aucun exercice trouvé.</p>
+    {% endif %}
+</div>
+
+<div id="importModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="hideImportModal()">&times;</span>
+        <h3>Import JSON</h3>
+        <form method="post" action="{{ url_for('exercises.import_exercises') }}">
+            <textarea name="json_data" rows="10" style="width:100%;" placeholder='[{"id": "ex_0001", ...}]'></textarea>
+            <button type="submit" class="btn btn-primary">Importer</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'block';
+}
+function hideImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
+</script>
+{% endblock %}

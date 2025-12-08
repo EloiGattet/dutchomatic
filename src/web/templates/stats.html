@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Statistiques - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="stats-page">
+    <h2>Statistiques</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total exercices</h3>
+            <p class="stat-value">{{ total_exercises }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total tirages</h3>
+            <p class="stat-value">{{ total_prints }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Taux réponses</h3>
+            <p class="stat-value">{{ answer_rate }}%</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Distribution par type</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Nombre</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for type, count in type_distribution.items() %}
+                <tr>
+                    <td>{{ type }}</td>
+                    <td>{{ count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h3>Distribution par niveau</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Niveau</th>
+                    <th>Nombre</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for niveau, count in niveau_distribution.items() %}
+                <tr>
+                    <td>{{ niveau }}</td>
+                    <td>{{ count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h3>Tickets par jour (7 derniers jours)</h3>
+        {% if tickets_per_day %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Tickets</th>
+                    <th>Avec réponses</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for date, count in tickets_per_day.items()|sort(reverse=true) %}
+                <tr>
+                    <td>{{ date }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ answers_per_day.get(date, 0) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Aucun ticket sur les 7 derniers jours.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
