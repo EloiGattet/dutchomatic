@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Templates de tickets - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Templates de tickets</h2>
+    <a href="{{ url_for('templates.create_template') }}" class="btn btn-primary">+ Nouveau template</a>
+</div>
+
+<div class="section">
+    <p>Configurez les templates d'impression des tickets. Vous pouvez définir des images, textes personnalisés, et le format du contenu.</p>
+    
+    {% if templates %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Ordre</th>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for template in templates %}
+            <tr>
+                <td>{{ template.order }}</td>
+                <td><strong>{{ template.name }}</strong></td>
+                <td>{{ template.type }}</td>
+                <td>
+                    {% if template.enabled %}
+                        <span style="color: green;">✓ Actif</span>
+                    {% else %}
+                        <span style="color: gray;">✗ Inactif</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('templates.view_template', template_id=template.id) }}" class="btn btn-sm">Voir</a>
+                    <a href="{{ url_for('templates.edit_template', template_id=template.id) }}" class="btn btn-sm">Modifier</a>
+                    <form method="POST" action="{{ url_for('templates.delete_template', template_id=template.id) }}" style="display: inline;" onsubmit="return confirm('Supprimer ce template?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Aucun template configuré. <a href="{{ url_for('templates.create_template') }}">Créer le premier template</a></p>
+    {% endif %}
+</div>
+{% endblock %}
+

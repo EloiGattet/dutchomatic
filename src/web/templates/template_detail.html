@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ template.name }} - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{{ template.name }}</h2>
+    <div>
+        <a href="{{ url_for('templates.edit_template', template_id=template.id) }}" class="btn btn-primary">Modifier</a>
+        <a href="{{ url_for('templates.list_templates') }}" class="btn btn-secondary">Retour</a>
+    </div>
+</div>
+
+<div class="section">
+    <h3>Informations générales</h3>
+    <div class="card">
+        <p><strong>ID:</strong> {{ template.id }}</p>
+        <p><strong>Type:</strong> {{ template.type }}</p>
+        <p><strong>Statut:</strong> {% if template.enabled %}<span style="color: green;">✓ Actif</span>{% else %}<span style="color: gray;">✗ Inactif</span>{% endif %}</p>
+        <p><strong>Ordre:</strong> {{ template.order }}</p>
+    </div>
+</div>
+
+<div class="section">
+    <h3>En-tête</h3>
+    <div class="card">
+        <p><strong>Image:</strong> {{ template.header.image or 'Aucune' }}</p>
+        <p><strong>Texte personnalisé:</strong></p>
+        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px;">{{ template.header.custom_text or 'Aucun' }}</pre>
+    </div>
+</div>
+
+<div class="section">
+    <h3>Contenu</h3>
+    <div class="card">
+        <p><strong>Afficher titre:</strong> {% if template.content.show_title %}✓{% else %}✗{% endif %}</p>
+        <p><strong>Afficher niveau:</strong> {% if template.content.show_niveau %}✓{% else %}✗{% endif %}</p>
+        <p><strong>Afficher prompt:</strong> {% if template.content.show_prompt %}✓{% else %}✗{% endif %}</p>
+        <p><strong>Nombre max d'items:</strong> {{ template.content.max_items or 'Tous' }}</p>
+        <p><strong>Format des items:</strong> {{ template.content.item_format }}</p>
+    </div>
+</div>
+
+<div class="section">
+    <h3>Pied de page</h3>
+    <div class="card">
+        <p><strong>Image:</strong> {{ template.footer.image or 'Aucune' }}</p>
+        <p><strong>Texte personnalisé:</strong></p>
+        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px;">{{ template.footer.custom_text or 'Aucun' }}</pre>
+    </div>
+</div>
+
+<div class="section">
+    <h3>JSON brut</h3>
+    <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;">{{ template | tojson(indent=2) }}</pre>
+</div>
+{% endblock %}
+

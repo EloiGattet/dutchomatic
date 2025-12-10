@@ -22,11 +22,12 @@ class SimulatorPrinter(Printer):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def print_text(self, text: str) -> bool:
+    def print_text(self, text: str, header_images: Optional[list] = None) -> bool:
         """Print text to file.
         
         Args:
             text: Text to print
+            header_images: Optional list of image paths to print before text
             
         Returns:
             True if successful, False otherwise
@@ -38,10 +39,19 @@ class SimulatorPrinter(Printer):
             
             # Write to file
             with open(filename, 'w', encoding='utf-8') as f:
+                # Write header images info
+                if header_images:
+                    f.write("=== HEADER IMAGES ===\n")
+                    for img_path in header_images:
+                        f.write(f"[IMAGE: {img_path}]\n")
+                    f.write("\n")
+                
                 f.write(text)
                 f.write('\n')
             
             print(f"Simulated print: {filename}")
+            if header_images:
+                print(f"  Header images: {', '.join(header_images)}")
             return True
         except Exception as e:
             print(f"Error in simulator print: {e}")

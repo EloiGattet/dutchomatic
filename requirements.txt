@@ -3,4 +3,6 @@
 
 # Core dependencies
 python-escpos>=3.0
+pyserial>=3.5
+pillow>=9.0.0
 flask>=2.0.0

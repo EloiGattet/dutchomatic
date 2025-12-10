@@ -29,6 +29,19 @@
         </div>
     </div>
 
+    <div class="section print-actions">
+        <h3>Impression</h3>
+        <div class="button-group">
+            <button id="btn-print-exercise" class="btn btn-primary btn-large">
+                🖨️ Imprimer un exercice
+            </button>
+            <button id="btn-print-answers" class="btn btn-secondary btn-large" {% if not last_exercise %}disabled{% endif %}>
+                📄 Imprimer les réponses
+            </button>
+        </div>
+        <div id="print-status" class="print-status"></div>
+    </div>
+
     {% if last_exercise %}
     <div class="section">
         <h3>Dernier exercice</h3>
@@ -66,4 +79,77 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnExercise = document.getElementById('btn-print-exercise');
+    const btnAnswers = document.getElementById('btn-print-answers');
+    const statusDiv = document.getElementById('print-status');
+    
+    function showStatus(message, isError = false) {
+        statusDiv.textContent = message;
+        statusDiv.className = 'print-status ' + (isError ? 'error' : 'success');
+        setTimeout(() => {
+            statusDiv.textContent = '';
+            statusDiv.className = 'print-status';
+        }, 3000);
+    }
+    
+    btnExercise.addEventListener('click', async function() {
+        btnExercise.disabled = true;
+        statusDiv.textContent = 'Impression en cours...';
+        
+        try {
+            const response = await fetch('/print/exercise', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showStatus(`✓ Exercice "${data.title}" imprimé avec succès!`, false);
+                // Reload page to update stats
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showStatus(`✗ Erreur: ${data.error}`, true);
+            }
+        } catch (error) {
+            showStatus(`✗ Erreur: ${error.message}`, true);
+        } finally {
+            btnExercise.disabled = false;
+        }
+    });
+    
+    btnAnswers.addEventListener('click', async function() {
+        if (btnAnswers.disabled) return;
+        
+        btnAnswers.disabled = true;
+        statusDiv.textContent = 'Impression en cours...';
+        
+        try {
+            const response = await fetch('/print/answers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showStatus('✓ Réponses imprimées avec succès!', false);
+            } else {
+                showStatus(`✗ Erreur: ${data.error}`, true);
+            }
+        } catch (error) {
+            showStatus(`✗ Erreur: ${error.message}`, true);
+        } finally {
+            btnAnswers.disabled = false;
+        }
+    });
+});
+</script>
 {% endblock %}

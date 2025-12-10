@@ -19,11 +19,12 @@ class Printer(ABC):
         self.width = width
 
     @abstractmethod
-    def print_text(self, text: str) -> bool:
+    def print_text(self, text: str, header_images: Optional[list] = None) -> bool:
         """Print raw text.
         
         Args:
             text: Text to print
+            header_images: Optional list of image paths to print before text
             
         Returns:
             True if successful, False otherwise
@@ -50,10 +51,10 @@ class Printer(ABC):
         """
         try:
             # Format exercise
-            formatted_text = format_exercise(exercise, daily)
+            formatted_text, header_images = format_exercise(exercise, daily)
             
             # Print
-            success = self.print_text(formatted_text)
+            success = self.print_text(formatted_text, header_images=header_images)
             
             # Update state if storage and state_manager provided
             if success and storage and state_manager:
@@ -88,10 +89,10 @@ class Printer(ABC):
                 return False
             
             # Format answers
-            formatted_text = format_answers(exercise)
+            formatted_text, header_images = format_answers(exercise)
             
             # Print
-            success = self.print_text(formatted_text)
+            success = self.print_text(formatted_text, header_images=header_images)
             
             # Update state if state_manager provided
             if success and state_manager:
@@ -142,7 +143,9 @@ def get_printer(config_path: Optional[str] = None) -> Printer:
         return SimulatorPrinter(output_dir=output_dir, width=width)
     elif printer_type == 'escpos':
         from .escpos import EscposPrinter
-        device = config.get('device', '/dev/usb/lp0')
-        return EscposPrinter(device=device, width=width)
+        device = config.get('device', '/dev/ttyUSB0')
+        baudrate = config.get('baudrate', 9600)
+        timeout = config.get('timeout', 1)
+        return EscposPrinter(device=device, width=width, baudrate=baudrate, timeout=timeout)
     else:
         raise ValueError(f"Unknown printer type: {printer_type}")

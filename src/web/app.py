@@ -108,13 +108,15 @@ def log_not_found(error):
     return render_template_string(error_template), 404
 
 # Register blueprints
-from src.web.routes import dashboard, exercises, daily, settings, stats
+from src.web.routes import dashboard, exercises, daily, settings, stats, print, templates
 
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(exercises.bp)
 app.register_blueprint(daily.bp)
 app.register_blueprint(settings.bp)
 app.register_blueprint(stats.bp)
+app.register_blueprint(print.bp)
+app.register_blueprint(templates.bp)
 
 
 def create_app():

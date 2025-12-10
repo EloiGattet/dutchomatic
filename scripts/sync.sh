@@ -91,3 +91,6 @@ echo "Commandes utiles:"
 echo "  ssh $RASPBERRY_HOST 'sudo systemctl status dutchomatic'    # Vérifier le statut"
 echo "  ssh $RASPBERRY_HOST 'sudo systemctl restart dutchomatic'  # Redémarrer le service"
 echo "  ssh $RASPBERRY_HOST 'sudo journalctl -u dutchomatic -f'    # Voir les logs"
+
+
+

@@ -1,6 +1,8 @@
 {
-  "type": "simulator",
+  "type": "escpos",
   "output_dir": "output",
-  "device": "/dev/usb/lp0",
+  "device": "/dev/serial0",
+  "baudrate": 9600,
+  "timeout": 1,
   "width": 58
 }
