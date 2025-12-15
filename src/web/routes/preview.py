@@ -1,6 +1,6 @@
 """Preview routes for web interface."""
 
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, send_file, jsonify
 from pathlib import Path
 from src.web.app import storage
 from src.core.selector import select_exercise
@@ -8,6 +8,7 @@ from src.core.daily_selector import select_daily
 from src.core.course_selector import select_course
 from src.core.city_selector import select_city
 from src.core.formatter import format_exercise
+from src.core.state_manager import StateManager
 
 bp = Blueprint('preview', __name__, url_prefix='/preview')
 
@@ -168,4 +169,122 @@ def preview_exercise():
     except Exception as e:
         current_app.logger.error(f'Error previewing exercise: {str(e)}', exc_info=True)
         return render_template('preview_error.html', error=str(e)), 500
+
+
+@bp.route('/visual')
+def preview_visual():
+    """Generate visual bitmap preview using VisualSimulatorPrinter."""
+    try:
+        # Get state
+        state = storage.get_state()
+        niveau_actuel = state.get('niveau_actuel', 'A1')
+        
+        # Get settings for policy
+        from src.web.routes.settings import load_settings
+        settings = load_settings()
+        policy = settings.get('draw_policy', 'strict')
+        mix_ratio = settings.get('draw_mix_percent', 70) / 100.0
+        
+        # Select exercise
+        exercise = select_exercise(
+            storage,
+            niveau_actuel,
+            policy=policy,
+            mix_ratio=mix_ratio
+        )
+        
+        if not exercise:
+            return jsonify({
+                'success': False,
+                'error': 'Aucun exercice disponible'
+            }), 404
+        
+        # Select daily bonus
+        daily = select_daily(storage)
+        
+        # Select course
+        course = select_course(storage)
+        
+        # Select city for "ville du jour"
+        city = select_city()
+        
+        # Use VisualSimulatorPrinter
+        try:
+            from src.printer.visual_simulator import VisualSimulatorPrinter
+            from src.printer.printer import get_printer
+            
+            # Get config
+            project_root = Path(__file__).parent.parent.parent
+            config_path = project_root / 'config' / 'printer.json'
+            
+            # Create visual simulator
+            printer = VisualSimulatorPrinter(
+                device='/dev/null',
+                width=58,
+                baudrate=9600,
+                timeout=1,
+                width_px=384,
+                default_encoding='cp850',
+                codepage='cp850',
+                international='FRANCE'
+            )
+            
+            # Print exercise
+            state_manager = StateManager(storage)
+            success = printer.print_exercise(
+                exercise,
+                daily=daily,
+                city=city,
+                course=course,
+                storage=storage,
+                state_manager=state_manager
+            )
+            
+            if not success:
+                return jsonify({
+                    'success': False,
+                    'error': 'Erreur lors de la simulation'
+                }), 500
+            
+            # Get preview image
+            preview_img = printer.get_preview_image()
+            if not preview_img:
+                return jsonify({
+                    'success': False,
+                    'error': 'Impossible de générer l\'aperçu'
+                }), 500
+            
+            # Save to temporary file
+            import tempfile
+            import os
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+            temp_path = temp_file.name
+            temp_file.close()
+            
+            # Convert to RGB and save
+            rgb_img = preview_img.convert("RGB")
+            rgb_img.save(temp_path, "PNG")
+            
+            printer.close()
+            
+            # Return the image file
+            return send_file(
+                temp_path,
+                mimetype='image/png',
+                as_attachment=False,
+                download_name=f'preview_{exercise.get("id", "exercise")}.png'
+            )
+            
+        except ImportError:
+            return jsonify({
+                'success': False,
+                'error': 'VisualSimulatorPrinter non disponible (PIL requis)'
+            }), 500
+        
+    except Exception as e:
+        current_app.logger.error(f'Error generating visual preview: {str(e)}', exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 

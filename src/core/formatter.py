@@ -457,13 +457,17 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
             content_nl = course.get('content_nl', '')
             content_fr = course.get('content_fr', '')
             if content_nl and content_fr:
-                # Afficher les deux versions côte à côte ou l'une après l'autre
-                # Format: ligne NL, puis ligne FR
-                for nl_line, fr_line in zip(content_nl.split('\n'), content_fr.split('\n')):
-                    nl_stripped = nl_line.strip()
+                # Afficher d'abord le contenu NL (peut être sur une ligne)
+                nl_normalized = _normalize_accents(content_nl.strip())
+                # Si trop long, wrapper
+                if len(nl_normalized) > TICKET_WIDTH:
+                    _wrap_text(lines, nl_normalized, TICKET_WIDTH)
+                else:
+                    lines.append(nl_normalized)
+                
+                # Puis le contenu FR ligne par ligne
+                for fr_line in content_fr.split('\n'):
                     fr_stripped = fr_line.strip()
-                    if nl_stripped:
-                        lines.append(_normalize_accents(nl_stripped))
                     if fr_stripped:
                         lines.append(_normalize_accents(fr_stripped))
         else:

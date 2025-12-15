@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+
+{% block title %}Tests d'impression - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="test-print">
+    <h2>Tests d'impression</h2>
+    <p class="description">Testez chaque élément d'impression individuellement pour diagnostiquer les problèmes.</p>
+    
+    <div class="test-section">
+        <h3>Séparateurs</h3>
+        <div class="test-buttons">
+            <button class="btn btn-secondary test-btn" data-type="separator" data-char="-" data-double="false">
+                Séparateur simple (-)
+            </button>
+            <button class="btn btn-secondary test-btn" data-type="separator" data-char="=" data-double="false">
+                Séparateur double (=)
+            </button>
+            <button class="btn btn-secondary test-btn" data-type="separator" data-char="-" data-double="true">
+                Séparateur double lignes
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Texte</h3>
+        <div class="test-buttons">
+            <button class="btn btn-secondary test-btn" data-type="text">
+                Texte simple avec accents
+            </button>
+            <button class="btn btn-secondary test-btn" data-type="accent">
+                Test accents français
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Emojis</h3>
+        <div class="test-buttons">
+            <button class="btn btn-secondary test-btn" data-type="emoji">
+                Emojis simples
+            </button>
+            <button class="btn btn-secondary test-btn" data-type="mixed">
+                Texte + emojis mixtes
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Images</h3>
+        <div class="test-buttons">
+            <button class="btn btn-secondary test-btn" data-type="image" data-image-type="logo">
+                Logo
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Combinaison</h3>
+        <div class="test-buttons">
+            <button class="btn btn-primary test-btn" data-type="combination">
+                Test complet combiné
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Simulateur visuel</h3>
+        <p class="description">Génère un bitmap simulant le résultat d'impression.</p>
+        <div class="test-buttons">
+            <button class="btn btn-secondary" id="btn-visual-preview">
+                🖼️ Générer aperçu visuel
+            </button>
+        </div>
+        <div id="visual-preview-container" style="margin-top: 1rem; display: none;">
+            <img id="visual-preview-img" src="" alt="Aperçu visuel" style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+    </div>
+    
+    <div id="test-status" class="test-status"></div>
+    
+    <div class="logs-section">
+        <h3>Logs d'impression</h3>
+        <div class="logs-controls">
+            <button class="btn btn-secondary" id="btn-refresh-logs">Actualiser</button>
+            <button class="btn btn-secondary" id="btn-view-latest-log">Voir dernier log</button>
+        </div>
+        <div id="logs-list" class="logs-list"></div>
+        <div id="log-viewer" class="log-viewer" style="display: none;">
+            <h4 id="log-viewer-title"></h4>
+            <div class="log-controls">
+                <button class="btn btn-small" id="btn-close-log">Fermer</button>
+                <button class="btn btn-small" id="btn-download-log">Télécharger</button>
+            </div>
+            <pre id="log-content"></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusDiv = document.getElementById('test-status');
+    const logsList = document.getElementById('logs-list');
+    const logViewer = document.getElementById('log-viewer');
+    const logContent = document.getElementById('log-content');
+    const logViewerTitle = document.getElementById('log-viewer-title');
+    let currentLogFilename = null;
+    
+    function showStatus(message, isError = false) {
+        statusDiv.textContent = message;
+        statusDiv.className = 'test-status ' + (isError ? 'error' : 'success');
+        setTimeout(() => {
+            statusDiv.textContent = '';
+            statusDiv.className = 'test-status';
+        }, 5000);
+    }
+    
+    // Gestion des boutons de test
+    document.querySelectorAll('.test-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const testType = this.dataset.type;
+            const data = { type: testType };
+            
+            // Ajouter les paramètres spécifiques
+            if (this.dataset.char) {
+                data.char = this.dataset.char;
+            }
+            if (this.dataset.double) {
+                data.double = this.dataset.double === 'true';
+            }
+            if (this.dataset.imageType) {
+                data.image_type = this.dataset.imageType;
+            }
+            
+            this.disabled = true;
+            showStatus('Impression en cours...', false);
+            
+            try {
+                const response = await fetch('/print/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(`✓ Test "${testType}" imprimé avec succès!`, false);
+                    // Actualiser les logs après un test
+                    setTimeout(loadLogs, 1000);
+                } else {
+                    showStatus(`✗ Erreur: ${result.error}`, true);
+                }
+            } catch (error) {
+                showStatus(`✗ Erreur: ${error.message}`, true);
+            } finally {
+                this.disabled = false;
+            }
+        });
+    });
+    
+    // Charger les logs
+    async function loadLogs() {
+        try {
+            const response = await fetch('/print/logs');
+            const result = await response.json();
+            
+            if (result.success) {
+                if (result.logs.length === 0) {
+                    logsList.innerHTML = '<p class="no-logs">Aucun log disponible</p>';
+                    return;
+                }
+                
+                logsList.innerHTML = '<ul class="logs-list-items">' + 
+                    result.logs.map(log => {
+                        const date = new Date(log.modified * 1000);
+                        const sizeKB = (log.size / 1024).toFixed(2);
+                        return `<li>
+                            <span class="log-name">${log.filename}</span>
+                            <span class="log-info">${date.toLocaleString()} - ${sizeKB} KB</span>
+                            <button class="btn btn-small view-log-btn" data-filename="${log.filename}">Voir</button>
+                            <a href="/print/logs/${log.filename}/download" class="btn btn-small">Télécharger</a>
+                        </li>`;
+                    }).join('') + '</ul>';
+                
+                // Ajouter les listeners pour les boutons "Voir"
+                document.querySelectorAll('.view-log-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        viewLog(this.dataset.filename);
+                    });
+                });
+            }
+        } catch (error) {
+            logsList.innerHTML = '<p class="error">Erreur lors du chargement des logs</p>';
+        }
+    }
+    
+    // Voir un log
+    async function viewLog(filename) {
+        try {
+            const response = await fetch(`/print/logs/${filename}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                currentLogFilename = filename;
+                logViewerTitle.textContent = filename;
+                logContent.textContent = result.content;
+                logViewer.style.display = 'block';
+                logViewer.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                showStatus(`✗ Erreur: ${result.error}`, true);
+            }
+        } catch (error) {
+            showStatus(`✗ Erreur: ${error.message}`, true);
+        }
+    }
+    
+    // Voir le dernier log
+    document.getElementById('btn-view-latest-log').addEventListener('click', async function() {
+        try {
+            const response = await fetch('/print/logs');
+            const result = await response.json();
+            
+            if (result.success && result.logs.length > 0) {
+                viewLog(result.logs[0].filename);
+            } else {
+                showStatus('Aucun log disponible', false);
+            }
+        } catch (error) {
+            showStatus(`✗ Erreur: ${error.message}`, true);
+        }
+    });
+    
+    // Fermer le viewer de log
+    document.getElementById('btn-close-log').addEventListener('click', function() {
+        logViewer.style.display = 'none';
+        currentLogFilename = null;
+    });
+    
+    // Télécharger le log
+    document.getElementById('btn-download-log').addEventListener('click', function() {
+        if (currentLogFilename) {
+            window.location.href = `/print/logs/${currentLogFilename}/download`;
+        }
+    });
+    
+    // Actualiser les logs
+    document.getElementById('btn-refresh-logs').addEventListener('click', loadLogs);
+    
+    // Aperçu visuel
+    document.getElementById('btn-visual-preview').addEventListener('click', async function() {
+        this.disabled = true;
+        showStatus('Génération de l\'aperçu visuel...', false);
+        
+        try {
+            const response = await fetch('/preview/visual');
+            
+            if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
+                // Créer une URL blob pour l'image
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                
+                const previewImg = document.getElementById('visual-preview-img');
+                const previewContainer = document.getElementById('visual-preview-container');
+                
+                previewImg.src = url;
+                previewContainer.style.display = 'block';
+                previewContainer.scrollIntoView({ behavior: 'smooth' });
+                
+                showStatus('✓ Aperçu visuel généré avec succès!', false);
+            } else {
+                const error = await response.json();
+                showStatus(`✗ Erreur: ${error.error || 'Erreur inconnue'}`, true);
+            }
+        } catch (error) {
+            showStatus(`✗ Erreur: ${error.message}`, true);
+        } finally {
+            this.disabled = false;
+        }
+    });
+    
+    // Charger les logs au chargement de la page
+    loadLogs();
+});
+</script>
+
+<style>
+.test-print {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.test-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.test-section h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.test-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.test-status {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.test-status.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.test-status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.logs-section {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logs-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.logs-list-items {
+    list-style: none;
+    padding: 0;
+}
+
+.logs-list-items li {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.log-name {
+    flex: 1;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.log-info {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.log-viewer {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.log-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+#log-content {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.btn-small {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.no-logs {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+}
+</style>
+{% endblock %}
+

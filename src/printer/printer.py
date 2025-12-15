@@ -152,11 +152,62 @@ def get_printer(config_path: Optional[str] = None) -> Printer:
         from .simulator import SimulatorPrinter
         output_dir = config.get('output_dir', 'output')
         return SimulatorPrinter(output_dir=output_dir, width=width)
+    elif printer_type == 'visual_simulator':
+        from .visual_simulator import VisualSimulatorPrinter
+        width_px = config.get('width_px', 384)
+        codepage = config.get('codepage', 'cp850')
+        international = config.get('international', 'FRANCE')
+        default_encoding = config.get('default_encoding', 'cp850')
+        default_font_path = config.get('default_font_path')
+        if not default_font_path:
+            project_root = Path(__file__).parent.parent.parent
+            font_path = project_root / 'fonts' / 'Roboto-Bold.ttf'
+            if font_path.exists():
+                default_font_path = str(font_path)
+            else:
+                default_font_path = None
+        return VisualSimulatorPrinter(
+            device='/dev/null',
+            width=width,
+            baudrate=9600,
+            timeout=1,
+            width_px=width_px,
+            default_encoding=default_encoding,
+            default_font_path=default_font_path,
+            codepage=codepage,
+            international=international
+        )
     elif printer_type == 'escpos':
         from .escpos import EscposPrinter
+        
         device = config.get('device', '/dev/ttyUSB0')
         baudrate = config.get('baudrate', 9600)
         timeout = config.get('timeout', 1)
-        return EscposPrinter(device=device, width=width, baudrate=baudrate, timeout=timeout)
+        width_px = config.get('width_px', 384)  # 384px pour 58mm
+        codepage = config.get('codepage', 'cp850')
+        international = config.get('international', 'FRANCE')
+        default_encoding = config.get('default_encoding', 'cp850')
+        
+        # Chercher la font par défaut (Roboto-Bold)
+        default_font_path = config.get('default_font_path')
+        if not default_font_path:
+            project_root = Path(__file__).parent.parent.parent
+            font_path = project_root / 'fonts' / 'Roboto-Bold.ttf'
+            if font_path.exists():
+                default_font_path = str(font_path)
+            else:
+                default_font_path = None
+        
+        return EscposPrinter(
+            device=device,
+            width=width,
+            baudrate=baudrate,
+            timeout=timeout,
+            width_px=width_px,
+            default_encoding=default_encoding,
+            default_font_path=default_font_path,
+            codepage=codepage,
+            international=international
+        )
     else:
         raise ValueError(f"Unknown printer type: {printer_type}")

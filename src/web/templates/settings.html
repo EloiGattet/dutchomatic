@@ -97,5 +97,13 @@
                 {% endif %}
             </div>
         </div>
+
+        <div class="section">
+            <h3>Tests d'impression</h3>
+            <p>Testez les éléments d'impression individuellement pour diagnostiquer les problèmes.</p>
+            <div class="form-actions">
+                <a href="{{ url_for('print.test_print_page') }}" class="btn btn-secondary">Page de tests</a>
+            </div>
+        </div>
 </div>
 {% endblock %}

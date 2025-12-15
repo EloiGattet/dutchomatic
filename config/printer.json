@@ -4,5 +4,10 @@
   "device": "/dev/serial0",
   "baudrate": 9600,
   "timeout": 1,
-  "width": 58
+  "width": 58,
+  "width_px": 384,
+  "codepage": "cp850",
+  "international": "FRANCE",
+  "default_encoding": "cp850",
+  "default_font_path": null
 }

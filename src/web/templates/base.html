@@ -10,7 +10,8 @@
     <nav class="navbar">
         <div class="nav-container">
             <h1 class="nav-title">🇳🇱 Dutch-o-matic</h1>
-            <ul class="nav-menu">
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">☰</button>
+            <ul class="nav-menu" id="nav-menu">
                 <li><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
                 <li><a href="{{ url_for('exercises.list_exercises') }}">Exercices</a></li>
                 <li><a href="{{ url_for('daily.list_daily') }}">Daily</a></li>
@@ -20,9 +21,38 @@
                 <li><a href="{{ url_for('instagram.list_accounts') }}">Instagram</a></li>
                 <li><a href="{{ url_for('stats.index') }}">Stats</a></li>
                 <li><a href="{{ url_for('settings.index') }}">Paramètres</a></li>
+                <li><a href="{{ url_for('print.test_print_page') }}">Tests Impression</a></li>
             </ul>
         </div>
     </nav>
+    
+    <script>
+        // Menu hamburger pour mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const navToggle = document.getElementById('nav-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+                
+                // Fermer le menu quand on clique sur un lien
+                navMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                    });
+                });
+                
+                // Fermer le menu quand on clique en dehors
+                document.addEventListener('click', function(event) {
+                    if (!navToggle.contains(event.target) && !navMenu.contains(event.target)) {
+                        navMenu.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
 
     <main class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
