@@ -51,3 +51,10 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Large binary files
+fonts/*.ttf
+*.ttf
+*.otf
+*.woff
+*.woff2
