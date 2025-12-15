@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Comptes Instagram - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Comptes Instagram</h2>
+    <p>Gérez les comptes Instagram affichés sur les tickets</p>
+</div>
+
+<div class="card">
+    <form method="post" action="{{ url_for('instagram.update_accounts') }}" class="form">
+        <div class="form-group">
+            <label>Données JSON</label>
+            <textarea name="json_data" rows="30" style="font-family: monospace; font-size: 12px;">{{ categories | tojson(indent=2) }}</textarea>
+            <small>Modifiez le JSON directement. Structure: categories → accounts (handle, theme, why)</small>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Sauvegarder</button>
+            <a href="{{ url_for('instagram.list_accounts') }}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Structure attendue</h3>
+    <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;">
+{
+  "categories": [
+    {
+      "name": "🗣️ Apprendre le néerlandais",
+      "accounts": [
+        {
+          "handle": "@dutchgrammar",
+          "theme": "Grammaire et vocabulaire",
+          "why": "Explications claires, posts visuels, exercices."
+        }
+      ]
+    }
+  ]
+}
+    </pre>
+</div>
+{% endblock %}
+

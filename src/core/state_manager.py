@@ -13,11 +13,13 @@ class StateManager:
         """Initialize with storage interface."""
         self.storage = storage
     
-    def print_exercise(self, exercise_id: str) -> bool:
+    def print_exercise(self, exercise_id: str, bonus_images: Optional[list] = None, instagram_account: Optional[str] = None) -> bool:
         """Update state after printing an exercise.
         
         Args:
             exercise_id: ID of the printed exercise
+            bonus_images: Optional list of bonus image paths that were printed
+            instagram_account: Optional Instagram category name that was printed
         
         Returns:
             True if successful
@@ -33,6 +35,21 @@ class StateManager:
             
             self.storage.update_state('compteur_total', compteur)
             self.storage.update_state('xp', xp)
+            
+            # Track printed photos
+            if bonus_images:
+                printed_photos = state.get('printed_photos', [])
+                for photo_path in bonus_images:
+                    if photo_path not in printed_photos:
+                        printed_photos.append(photo_path)
+                self.storage.update_state('printed_photos', printed_photos)
+            
+            # Track printed Instagram accounts
+            if instagram_account:
+                printed_accounts = state.get('printed_instagram_accounts', [])
+                if instagram_account not in printed_accounts:
+                    printed_accounts.append(instagram_account)
+                self.storage.update_state('printed_instagram_accounts', printed_accounts)
             
             # Add history entry
             entry = {

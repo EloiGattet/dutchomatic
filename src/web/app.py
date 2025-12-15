@@ -4,7 +4,7 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template_string, send_from_directory
 from src.storage import JSONStorage
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -108,15 +108,31 @@ def log_not_found(error):
     return render_template_string(error_template), 404
 
 # Register blueprints
-from src.web.routes import dashboard, exercises, daily, settings, stats, print, templates
+from src.web.routes import dashboard, exercises, daily, courses, settings, stats, print, templates, upload, instagram, preview
 
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(exercises.bp)
 app.register_blueprint(daily.bp)
+app.register_blueprint(courses.bp)
 app.register_blueprint(settings.bp)
 app.register_blueprint(stats.bp)
 app.register_blueprint(print.bp)
 app.register_blueprint(templates.bp)
+app.register_blueprint(upload.bp)
+app.register_blueprint(instagram.bp)
+app.register_blueprint(preview.bp)
+
+# Serve static files from data/ and output/ directories
+@app.route('/static/data/<path:filename>')
+def serve_data_file(filename):
+    """Serve files from data directory."""
+    return send_from_directory(data_dir, filename)
+
+@app.route('/static/output/<path:filename>')
+def serve_output_file(filename):
+    """Serve files from output directory."""
+    output_dir = os.path.join(project_root, 'output')
+    return send_from_directory(output_dir, filename)
 
 
 def create_app():

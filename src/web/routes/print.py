@@ -5,6 +5,8 @@ from src.web.app import storage
 from src.printer import get_printer
 from src.core.selector import select_exercise
 from src.core.daily_selector import select_daily
+from src.core.course_selector import select_course
+from src.core.city_selector import select_city
 from src.core.state_manager import StateManager
 
 bp = Blueprint('print', __name__, url_prefix='/print')
@@ -41,6 +43,12 @@ def print_exercise():
         # Select daily bonus
         daily = select_daily(storage)
         
+        # Select course
+        course = select_course(storage)
+        
+        # Select city for "ville du jour"
+        city = select_city()
+        
         # Get printer
         printer = get_printer()
         state_manager = StateManager(storage)
@@ -49,6 +57,8 @@ def print_exercise():
         success = printer.print_exercise(
             exercise,
             daily=daily,
+            city=city,
+            course=course,
             storage=storage,
             state_manager=state_manager
         )

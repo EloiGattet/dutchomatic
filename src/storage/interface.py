@@ -75,3 +75,28 @@ class StorageInterface(ABC):
     def add_history_entry(self, entry: Dict[str, Any]) -> bool:
         """Add an entry to the history. Returns True if successful."""
         pass
+
+    @abstractmethod
+    def get_course(self, course_id: str) -> Optional[Dict[str, Any]]:
+        """Get a single course by ID."""
+        pass
+
+    @abstractmethod
+    def get_all_courses(self, course_type: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get all courses, optionally filtered by type."""
+        pass
+
+    @abstractmethod
+    def add_course(self, course: Dict[str, Any]) -> str:
+        """Add a new course. Returns the course ID."""
+        pass
+
+    @abstractmethod
+    def update_course(self, course_id: str, course: Dict[str, Any]) -> bool:
+        """Update an existing course. Returns True if successful."""
+        pass
+
+    @abstractmethod
+    def delete_course(self, course_id: str) -> bool:
+        """Delete a course. Returns True if successful."""
+        pass

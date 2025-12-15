@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{% if course %}Modifier{% else %}Créer{% endif %} Cours - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>{% if course %}Modifier{% else %}Créer{% endif %} un cours</h2>
+    
+    <form method="post" class="form">
+        <div class="form-group">
+            <label>ID *</label>
+            <input type="text" name="id" value="{{ course.id if course else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Type *</label>
+            <select name="type" required>
+                <option value="">Sélectionner...</option>
+                <option value="vocabulary" {% if course and course.type == 'vocabulary' %}selected{% endif %}>Vocabulaire</option>
+                <option value="conjugation" {% if course and course.type == 'conjugation' %}selected{% endif %}>Conjugaison</option>
+                <option value="conversation" {% if course and course.type == 'conversation' %}selected{% endif %}>Conversation</option>
+                <option value="grammar" {% if course and course.type == 'grammar' %}selected{% endif %}>Grammaire</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Titre *</label>
+            <input type="text" name="title" value="{{ course.title if course else '' }}" required>
+            <small>Ex: "Les verbes courants", "Conjugaison : 'komen'"</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Titre néerlandais (NL) *</label>
+            <input type="text" name="nl" value="{{ course.nl if course else '' }}" required>
+            <small>Ex: "Veel gebruikte werkwoorden"</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Titre français (FR) *</label>
+            <input type="text" name="fr" value="{{ course.fr if course else '' }}" required>
+            <small>Ex: "Verbes très utilisés"</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Contenu néerlandais (content_nl) *</label>
+            <textarea name="content_nl" rows="5" required placeholder="lopen (marcher), zitten (s'asseoir)...">{{ course.content_nl if course else '' }}</textarea>
+            <small>Le contenu principal en néerlandais avec traductions entre parenthèses</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Contenu français (content_fr) *</label>
+            <textarea name="content_fr" rows="8" required placeholder="lopen = marcher&#10;zitten = s'asseoir...">{{ course.content_fr if course else '' }}</textarea>
+            <small>Le contenu traduit en français. Utilisez \n pour les retours à la ligne.</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Exemples (optionnel, JSON)</label>
+            <textarea name="examples" rows="4" placeholder='[{"nl": "exemple NL", "fr": "exemple FR"}]'>{% if course and course.examples %}{{ course.examples | tojson(indent=2) }}{% endif %}</textarea>
+            <small>Format JSON: [{"nl": "...", "fr": "..."}] ou ["texte simple"]</small>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% if course %}Modifier{% else %}Créer{% endif %}</button>
+            <a href="{{ url_for('courses.list_courses') }}" class="btn">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

@@ -65,7 +65,7 @@ def load_font(path: str, size: int) -> ImageFont.FreeTypeFont:
 def load_emoji_font(size: int) -> ImageFont.FreeTypeFont:
     """Essaie de charger une police emoji, sinon fallback sur la police par défaut."""
     candidates = [
-        "NotoColorEmoji.ttf",
+        "NotoEmoji-Bold.ttf",
         "NotoEmoji-Regular.ttf",
         "Segoe UI Emoji.ttf",
         CUSTOM_FONT_PATH,  # en dernier recours, la même que le texte custom

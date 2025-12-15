@@ -1,0 +1,79 @@
+{
+  "templates": [
+    {
+      "id": "default",
+      "name": "Template par défaut",
+      "enabled": true,
+      "order": 0,
+      "type": "exercise",
+      "header": {
+        "image": "logo_print.png",
+        "text": null,
+        "custom_text": null
+      },
+      "content": {
+        "show_title": true,
+        "show_niveau": true,
+        "show_prompt": true,
+        "max_items": null,
+        "item_format": "numbered"
+      },
+      "bonus": {
+        "enabled": true,
+        "show_recipe": true,
+        "show_surprise_photo": true,
+        "show_challenge": true
+      },
+      "course": {
+        "enabled": true
+      },
+      "city": {
+        "enabled": true,
+        "show_map": true,
+        "show_weather": true
+      },
+      "instagram": {
+        "enabled": true,
+        "max_categories": 1,
+        "max_accounts_per_category": 3
+      },
+      "countdown": {
+        "enabled": true
+      },
+      "footer": {
+        "image": null,
+        "text": null,
+        "custom_text": null,
+        "show_encouragement": true,
+        "show_counter": true
+      }
+    },
+    {
+      "id": "default-answers",
+      "name": "Template par défaut - Réponses",
+      "enabled": true,
+      "order": 1,
+      "type": "answers",
+      "header": {
+        "image": null,
+        "text": null,
+        "custom_text": null
+      },
+      "content": {
+        "show_title": true,
+        "show_niveau": true,
+        "max_items": null,
+        "item_format": "numbered"
+      },
+      "city": {
+        "enabled": false
+      },
+      "footer": {
+        "image": null,
+        "text": null,
+        "custom_text": null
+      }
+    }
+  ]
+}
+

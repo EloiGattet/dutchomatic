@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Cours - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="daily-page">
+    <div class="page-header">
+        <h2>Cours</h2>
+        <a href="{{ url_for('courses.create_course') }}" class="btn btn-primary">+ Nouveau cours</a>
+    </div>
+
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <select name="type">
+                <option value="">Tous les types</option>
+                <option value="vocabulary" {% if filter_type == 'vocabulary' %}selected{% endif %}>Vocabulaire</option>
+                <option value="conjugation" {% if filter_type == 'conjugation' %}selected{% endif %}>Conjugaison</option>
+                <option value="conversation" {% if filter_type == 'conversation' %}selected{% endif %}>Conversation</option>
+                <option value="grammar" {% if filter_type == 'grammar' %}selected{% endif %}>Grammaire</option>
+            </select>
+            <button type="submit" class="btn">Filtrer</button>
+            <a href="{{ url_for('courses.list_courses') }}" class="btn">Réinitialiser</a>
+        </form>
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('courses.export_courses') }}" class="btn btn-secondary">Export JSON</a>
+        <button onclick="showImportModal()" class="btn btn-secondary">Import JSON</button>
+    </div>
+
+    {% if courses %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Titre</th>
+                <th>NL</th>
+                <th>FR</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.id }}</td>
+                <td>{{ course.type }}</td>
+                <td>{{ course.title }}</td>
+                <td>{{ course.nl }}</td>
+                <td>{{ course.fr }}</td>
+                <td>
+                    <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="btn btn-sm">Voir</a>
+                    <a href="{{ url_for('courses.edit_course', course_id=course.id) }}" class="btn btn-sm">Modifier</a>
+                    <form method="post" action="{{ url_for('courses.delete_course', course_id=course.id) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce cours?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Aucun cours trouvé.</p>
+    {% endif %}
+</div>
+
+<div id="importModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="hideImportModal()">&times;</span>
+        <h3>Import JSON</h3>
+        <form method="post" action="{{ url_for('courses.import_courses') }}">
+            <textarea name="json_data" rows="10" style="width:100%;" placeholder='[{"id": "course_001", ...}]'></textarea>
+            <button type="submit" class="btn btn-primary">Importer</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'block';
+}
+function hideImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
+</script>
+{% endblock %}
+

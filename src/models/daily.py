@@ -8,6 +8,7 @@ class Daily:
 
     REQUIRED_FIELDS = ['id', 'kind', 'nl', 'fr']
     VALID_KINDS = ['expression', 'fact', 'quote']
+    OPTIONAL_FIELDS = ['recipe', 'challenge', 'surprise_photo']
 
     def __init__(self, data: Dict[str, Any]):
         """Initialize daily from dict."""

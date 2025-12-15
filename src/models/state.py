@@ -11,7 +11,17 @@ class State:
         'last_exercise_id': None,
         'niveau_actuel': 'A1',
         'xp': 0,
-        'compteur_total': 0
+        'compteur_total': 0,
+        'trip_date': None,
+        'encouragement_messages': [
+            'Goed gedaan !',
+            'Tot straks !',
+            'Geweldig !',
+            'Fantastisch !',
+            'Uitstekend !'
+        ],
+        'printed_photos': [],
+        'printed_instagram_accounts': []
     }
 
     def __init__(self, data: Optional[Dict[str, Any]] = None):

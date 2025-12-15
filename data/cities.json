@@ -1,0 +1,102 @@
+[
+  {
+    "id": "utrecht",
+    "name": "Utrecht",
+    "gps": {
+      "lat": 52.0907,
+      "lon": 5.1214
+    },
+    "anecdote": "Savais-tu qu'Utrecht a les canaux les plus profonds des Pays-Bas ?",
+    "place_to_visit": "Le Domtoren est la tour la plus haute du pays !"
+  },
+  {
+    "id": "haarlem",
+    "name": "Haarlem",
+    "gps": {
+      "lat": 52.3792,
+      "lon": 4.6361
+    },
+    "anecdote": "Haarlem est connue comme la 'Ville des Fleurs' et abrite le plus ancien musée des Pays-Bas.",
+    "place_to_visit": "La Grote Kerk (Grande Église) avec son orgue Müller de 1738."
+  },
+  {
+    "id": "maastricht",
+    "name": "Maastricht",
+    "gps": {
+      "lat": 50.8514,
+      "lon": 5.691
+    },
+    "anecdote": "Maastricht est la ville la plus méridionale des Pays-Bas et possède une architecture unique influencée par la Belgique et l'Allemagne.",
+    "place_to_visit": "La Basilique de Saint-Servais, l'une des plus anciennes églises des Pays-Bas."
+  },
+  {
+    "id": "amsterdam",
+    "name": "Amsterdam",
+    "gps": {
+      "lat": 52.3676,
+      "lon": 4.9041
+    },
+    "anecdote": "Amsterdam compte plus de 165 canaux et 1281 ponts, plus que Venise !",
+    "place_to_visit": "Le Rijksmuseum abrite les chefs-d'œuvre de Rembrandt et Vermeer."
+  },
+  {
+    "id": "rotterdam",
+    "name": "Rotterdam",
+    "gps": {
+      "lat": 51.9244,
+      "lon": 4.4777
+    },
+    "anecdote": "Rotterdam possède le plus grand port d'Europe et a été presque entièrement reconstruite après la Seconde Guerre mondiale.",
+    "place_to_visit": "Les Maisons Cubes (Kubuswoningen) de l'architecte Piet Blom."
+  },
+  {
+    "id": "den_haag",
+    "name": "La Haye",
+    "gps": {
+      "lat": 52.0705,
+      "lon": 4.3007
+    },
+    "anecdote": "La Haye est le siège du gouvernement néerlandais et de la Cour internationale de Justice.",
+    "place_to_visit": "Le Palais de la Paix et la plage de Scheveningen."
+  },
+  {
+    "id": "groningen",
+    "name": "Groningen",
+    "gps": {
+      "lat": 53.2194,
+      "lon": 6.5665
+    },
+    "anecdote": "Groningen est la plus grande ville du nord des Pays-Bas et possède la plus ancienne université après Leiden.",
+    "place_to_visit": "La tour Martini, symbole de la ville depuis le 15ème siècle."
+  },
+  {
+    "id": "leiden",
+    "name": "Leiden",
+    "gps": {
+      "lat": 52.1601,
+      "lon": 4.497
+    },
+    "anecdote": "Leiden est la ville natale de Rembrandt et abrite la plus ancienne université des Pays-Bas (1575).",
+    "place_to_visit": "Le Burcht van Leiden, une forteresse médiévale sur une colline artificielle."
+  },
+  {
+    "id": "delft",
+    "name": "Delft",
+    "gps": {
+      "lat": 52.0116,
+      "lon": 4.3571
+    },
+    "anecdote": "Delft est célèbre pour sa faïence bleue et blanche, et est la ville natale de Vermeer.",
+    "place_to_visit": "La Nouvelle Église (Nieuwe Kerk) où sont enterrés les membres de la famille royale."
+  },
+  {
+    "id": "eindhoven",
+    "name": "Eindhoven",
+    "gps": {
+      "lat": 51.4416,
+      "lon": 5.4697
+    },
+    "anecdote": "Eindhoven est connue comme la 'Ville de la Lumière' grâce à Philips, fondée ici en 1891.",
+    "place_to_visit": "Le Strijp-S, un quartier créatif dans d'anciennes usines Philips."
+  }
+]

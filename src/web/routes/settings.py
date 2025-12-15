@@ -81,6 +81,25 @@ def index():
             settings['printer']['width'] = int(request.form.get('printer_width', 58))
             
             save_settings(settings)
+            
+            # Update state: trip_date and encouragement_messages
+            state = storage.get_state()
+            trip_date = request.form.get('trip_date', '').strip()
+            if trip_date:
+                state['trip_date'] = trip_date
+            else:
+                state['trip_date'] = None
+            
+            # Messages d'encouragement (un par ligne)
+            encouragement_text = request.form.get('encouragement_messages', '').strip()
+            if encouragement_text:
+                messages = [m.strip() for m in encouragement_text.split('\n') if m.strip()]
+                if messages:
+                    state['encouragement_messages'] = messages
+            
+            storage.update_state('trip_date', state['trip_date'])
+            storage.update_state('encouragement_messages', state['encouragement_messages'])
+            
             flash('Paramètres sauvegardés avec succès', 'success')
             return redirect(url_for('settings.index'))
         except Exception as e:

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Cours: {{ course.title }} - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <div class="page-header">
+        <h2>{{ course.title }}</h2>
+        <div>
+            <a href="{{ url_for('courses.edit_course', course_id=course.id) }}" class="btn btn-primary">Modifier</a>
+            <form method="post" action="{{ url_for('courses.delete_course', course_id=course.id) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce cours?');">
+                <button type="submit" class="btn btn-danger">Supprimer</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="detail-card">
+        <div class="detail-row">
+            <strong>ID:</strong> {{ course.id }}
+        </div>
+        <div class="detail-row">
+            <strong>Type:</strong> {{ course.type }}
+        </div>
+        <div class="detail-row">
+            <strong>Titre NL:</strong> {{ course.nl }}
+        </div>
+        <div class="detail-row">
+            <strong>Titre FR:</strong> {{ course.fr }}
+        </div>
+        
+        {% if course.content_nl %}
+        <div class="detail-section">
+            <h3>Contenu néerlandais</h3>
+            <pre>{{ course.content_nl }}</pre>
+        </div>
+        {% endif %}
+        
+        {% if course.content_fr %}
+        <div class="detail-section">
+            <h3>Contenu français</h3>
+            <pre>{{ course.content_fr }}</pre>
+        </div>
+        {% endif %}
+        
+        {% if course.examples %}
+        <div class="detail-section">
+            <h3>Exemples</h3>
+            <ul>
+                {% for example in course.examples %}
+                <li>
+                    {% if example is mapping %}
+                        {{ example.nl }} → {{ example.fr }}
+                    {% else %}
+                        {{ example }}
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('courses.list_courses') }}" class="btn">Retour à la liste</a>
+    </div>
+</div>
+{% endblock %}
+

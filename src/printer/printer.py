@@ -19,12 +19,14 @@ class Printer(ABC):
         self.width = width
 
     @abstractmethod
-    def print_text(self, text: str, header_images: Optional[list] = None) -> bool:
+    def print_text(self, text: str, header_images: Optional[list] = None, bonus_images: Optional[list] = None, city_images: Optional[list] = None) -> bool:
         """Print raw text.
         
         Args:
             text: Text to print
             header_images: Optional list of image paths to print before text
+            bonus_images: Optional list of image paths to print in bonus section
+            city_images: Optional list of image paths to print in city section
             
         Returns:
             True if successful, False otherwise
@@ -35,14 +37,18 @@ class Printer(ABC):
         self,
         exercise: Dict,
         daily: Optional[Dict] = None,
+        city: Optional[Dict] = None,
+        course: Optional[Dict] = None,
         storage: Optional[StorageInterface] = None,
         state_manager: Optional[StateManager] = None
     ) -> bool:
-        """Print an exercise with optional daily bonus.
+        """Print an exercise with optional daily bonus, city, and course.
         
         Args:
             exercise: Exercise dict
             daily: Optional daily item dict
+            city: Optional city dict for "ville du jour"
+            course: Optional course dict for "cours du jour"
             storage: Storage interface (required for state update)
             state_manager: StateManager instance (required for state update)
             
@@ -50,15 +56,20 @@ class Printer(ABC):
             True if successful, False otherwise
         """
         try:
+            # Get state for countdown and footer
+            state = None
+            if storage:
+                state = storage.get_state()
+            
             # Format exercise
-            formatted_text, header_images = format_exercise(exercise, daily)
+            formatted_text, header_images, bonus_images, city_images, instagram_category = format_exercise(exercise, daily, city, course, state=state)
             
             # Print
-            success = self.print_text(formatted_text, header_images=header_images)
+            success = self.print_text(formatted_text, header_images=header_images, bonus_images=bonus_images, city_images=city_images)
             
             # Update state if storage and state_manager provided
             if success and storage and state_manager:
-                state_manager.print_exercise(exercise.get('id'))
+                state_manager.print_exercise(exercise.get('id'), bonus_images=bonus_images, instagram_account=instagram_category)
             
             return success
         except Exception as e:

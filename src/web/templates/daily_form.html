@@ -32,10 +32,71 @@
             <textarea name="fr" rows="3" required>{{ daily.fr if daily else '' }}</textarea>
         </div>
         
+        <div class="form-group">
+            <label>Recette (optionnel)</label>
+            <textarea name="recipe" rows="4" placeholder="Fabrique des poffertjes ! Ingrédients : [liste]">{{ daily.recipe if daily else '' }}</textarea>
+            <small>Ex: "Fabrique des poffertjes ! Ingrédients : farine, lait, œufs, sucre..."</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Défi du jour (optionnel)</label>
+            <textarea name="challenge" rows="3" placeholder="Dis 'Dank je wel' à un inconnu aujourd'hui !">{{ daily.challenge if daily else '' }}</textarea>
+            <small>Ex: "Dis 'Dank je wel' à un inconnu aujourd'hui !"</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Photo surprise (optionnel)</label>
+            <select name="surprise_photo" id="surprise_photo_select">
+                <option value="">Aucune photo</option>
+            </select>
+            <small>Les photos doivent être uploadées via l'interface d'upload</small>
+            <div style="margin-top: 5px;">
+                <button type="button" class="btn btn-secondary" onclick="refreshPhotoList()">Actualiser la liste</button>
+                <a href="{{ url_for('upload.list_surprise_photos') }}" class="btn btn-secondary" target="_blank">Gérer les photos</a>
+            </div>
+        </div>
+        
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">{% if daily %}Modifier{% else %}Créer{% endif %}</button>
             <a href="{{ url_for('daily.list_daily') }}" class="btn">Annuler</a>
         </div>
     </form>
+    
+    <script>
+        function refreshPhotoList() {
+            fetch('/upload/surprise_photos?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('surprise_photo_select');
+                        // Garder la valeur actuelle
+                        const currentValue = select.value;
+                        // Vider et remplir
+                        select.innerHTML = '<option value="">Aucune photo</option>';
+                        data.photos.forEach(photo => {
+                            const option = document.createElement('option');
+                            option.value = photo.filename;
+                            option.textContent = photo.filename;
+                            if (photo.filename === currentValue) {
+                                option.selected = true;
+                            }
+                            select.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => console.error('Erreur:', error));
+        }
+        
+        // Charger la liste au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshPhotoList();
+            {% if daily and daily.surprise_photo %}
+            // Sélectionner la photo actuelle après chargement
+            setTimeout(() => {
+                document.getElementById('surprise_photo_select').value = '{{ daily.surprise_photo }}';
+            }, 500);
+            {% endif %}
+        });
+    </script>
 </div>
 {% endblock %}

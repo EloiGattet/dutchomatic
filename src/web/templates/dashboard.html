@@ -32,6 +32,9 @@
     <div class="section print-actions">
         <h3>Impression</h3>
         <div class="button-group">
+            <button id="btn-preview-exercise" class="btn btn-secondary btn-large">
+                👁️ Afficher un exercice
+            </button>
             <button id="btn-print-exercise" class="btn btn-primary btn-large">
                 🖨️ Imprimer un exercice
             </button>
@@ -82,9 +85,14 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const btnPreview = document.getElementById('btn-preview-exercise');
     const btnExercise = document.getElementById('btn-print-exercise');
     const btnAnswers = document.getElementById('btn-print-answers');
     const statusDiv = document.getElementById('print-status');
+    
+    btnPreview.addEventListener('click', function() {
+        window.open('/preview/exercise', '_blank');
+    });
     
     function showStatus(message, isError = false) {
         statusDiv.textContent = message;

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Photos - Dutch-o-matic{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📸 Photos Surprise</h2>
+    <p>Gérez les photos qui seront imprimées sur les tickets</p>
+</div>
+
+<div class="card">
+    <h3>Uploader une nouvelle photo</h3>
+    <form method="post" action="{{ url_for('upload.upload_surprise_photo') }}" enctype="multipart/form-data" class="form">
+        <div class="form-group">
+            <label>Sélectionner une image</label>
+            <input type="file" name="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" required>
+            <small>Formats acceptés: PNG, JPG, JPEG, GIF, WEBP</small>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Uploader</button>
+        </div>
+    </form>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Photos disponibles ({{ photos|length }})</h3>
+    
+    {% if photos %}
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom du fichier</th>
+                    <th>Taille</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for photo in photos %}
+                <tr>
+                    <td>
+                        <strong>{{ photo.filename }}</strong>
+                        <br>
+                        <small style="color: #666;">{{ photo.path }}</small>
+                    </td>
+                    <td>{{ photo.size_mb }} MB</td>
+                    <td>
+                        <form method="post" action="{{ url_for('upload.delete_surprise_photo', filename=photo.filename) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette photo ?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>Aucune photo uploadée pour le moment.</p>
+    {% endif %}
+</div>
+
+<div class="card" style="margin-top: 20px; background: #f0f7ff; border-left: 4px solid #0066cc;">
+    <h4>💡 Comment utiliser les photos ?</h4>
+    <ol>
+        <li>Uploader une photo via le formulaire ci-dessus</li>
+        <li>Aller dans <strong>Daily</strong> → Créer/Modifier un élément daily</li>
+        <li>Sélectionner la photo dans le champ "Photo surprise"</li>
+        <li>La photo sera automatiquement imprimée sur les tickets contenant ce daily</li>
+    </ol>
+</div>
+{% endblock %}
+

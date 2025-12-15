@@ -3,7 +3,7 @@
     "id": "ex_0001",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les animaux",
+    "title": "🐾 Les animaux",
     "prompt": "Traduis en français (ou complète) :",
     "items": [
       {
@@ -28,7 +28,7 @@
     "id": "ex_0002",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les couleurs",
+    "title": "🎨 Les couleurs",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -50,7 +50,7 @@
     "id": "ex_0003",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les nombres de 1 à 10",
+    "title": "🔢 Les nombres de 1 à 10",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -90,7 +90,7 @@
     "id": "ex_0004",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "La famille",
+    "title": "👨‍👩‍👧‍👦 La famille",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -130,7 +130,7 @@
     "id": "ex_0005",
     "niveau": "A1",
     "type": "grammar",
-    "title": "Les articles définis : de / het",
+    "title": "📚 Les articles définis : de / het",
     "prompt": "Choisis le bon article :",
     "items": [
       {
@@ -169,7 +169,7 @@
     "id": "ex_0006",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les jours de la semaine",
+    "title": "📅 Les jours de la semaine",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -209,7 +209,7 @@
     "id": "ex_0007",
     "niveau": "A1",
     "type": "conjugation",
-    "title": "Le verbe 'zijn' (être) au présent",
+    "title": "🔤 Le verbe 'zijn' (être) au présent",
     "prompt": "Conjugue le verbe 'zijn' :",
     "items": [
       {
@@ -250,7 +250,7 @@
     "id": "ex_0008",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les aliments de base",
+    "title": "🍞 Les aliments de base",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -290,7 +290,7 @@
     "id": "ex_0009",
     "niveau": "A1",
     "type": "conjugation",
-    "title": "Le verbe 'hebben' (avoir) au présent",
+    "title": "🔤 Le verbe 'hebben' (avoir) au présent",
     "prompt": "Conjugue le verbe 'hebben' :",
     "items": [
       {
@@ -325,7 +325,7 @@
     "id": "ex_0010",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les salutations",
+    "title": "👋 Les salutations",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -365,7 +365,7 @@
     "id": "ex_0011",
     "niveau": "A1",
     "type": "grammar",
-    "title": "Les pronoms personnels",
+    "title": "👤 Les pronoms personnels",
     "prompt": "Traduis le pronom en néerlandais :",
     "items": [
       {
@@ -411,7 +411,7 @@
     "id": "ex_0012",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les parties du corps",
+    "title": "🦴 Les parties du corps",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -451,7 +451,7 @@
     "id": "ex_0013",
     "niveau": "A1",
     "type": "conjugation",
-    "title": "Le verbe 'gaan' (aller) au présent",
+    "title": "🔤 Le verbe 'gaan' (aller) au présent",
     "prompt": "Conjugue le verbe 'gaan' :",
     "items": [
       {
@@ -486,7 +486,7 @@
     "id": "ex_0014",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les vêtements",
+    "title": "👕 Les vêtements",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -526,7 +526,7 @@
     "id": "ex_0015",
     "niveau": "A1",
     "type": "translation",
-    "title": "Phrases simples",
+    "title": "💬 Phrases simples",
     "prompt": "Traduis la phrase en français :",
     "items": [
       {
@@ -560,7 +560,7 @@
     "id": "ex_0016",
     "niveau": "A1",
     "type": "vocabulary",
-    "title": "Les meubles",
+    "title": "🪑 Les meubles",
     "prompt": "Traduis en français :",
     "items": [
       {
@@ -600,7 +600,7 @@
     "id": "ex_0017",
     "niveau": "A1",
     "type": "grammar",
-    "title": "Les adjectifs : bon / mauvais",
+    "title": "⭐ Les adjectifs : bon / mauvais",
     "prompt": "Traduis en français :",
     "items": [
       {

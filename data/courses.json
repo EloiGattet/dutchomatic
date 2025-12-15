@@ -1,0 +1,93 @@
+[
+  {
+    "id": "course_001",
+    "type": "vocabulary",
+    "title": "Les verbes courants",
+    "nl": "Veel gebruikte werkwoorden",
+    "fr": "Verbes très utilisés",
+    "content_nl": "lopen (marcher), zitten (s'asseoir), staan (être debout), liggen (être allongé)",
+    "content_fr": "lopen = marcher\nzitten = s'asseoir\nstaan = être debout\nliggen = être allongé"
+  },
+  {
+    "id": "course_002",
+    "type": "conjugation",
+    "title": "Conjugaison : 'komen' (venir)",
+    "nl": "Het werkwoord 'komen'",
+    "fr": "Le verbe 'venir'",
+    "content_nl": "Ik kom, jij komt, hij komt, wij komen, jullie komen, zij komen",
+    "content_fr": "Ik kom = Je viens\nJij komt = Tu viens\nHij komt = Il vient\nWij komen = Nous venons\nJullie komen = Vous venez\nZij komen = Ils/Elles viennent"
+  },
+  {
+    "id": "course_003",
+    "type": "conversation",
+    "title": "Conversation : Au restaurant",
+    "nl": "Gesprek in een restaurant",
+    "fr": "Conversation au restaurant",
+    "content_nl": "A: Mag ik de menukaart? B: Natuurlijk, hier is de menukaart. A: Wat raadt u aan? B: Ik raad de stamppot aan, het is een typisch Nederlands gerecht.",
+    "content_fr": "A: Puis-je avoir le menu ?\nB: Bien sûr, voici le menu.\nA: Que recommandez-vous ?\nB: Je recommande le stamppot, c'est un plat typiquement néerlandais."
+  },
+  {
+    "id": "course_004",
+    "type": "vocabulary",
+    "title": "Les directions",
+    "nl": "Richtingen",
+    "fr": "Les directions",
+    "content_nl": "rechts (à droite), links (à gauche), rechtdoor (tout droit), omdraaien (faire demi-tour)",
+    "content_fr": "rechts = à droite\nlinks = à gauche\nrechtdoor = tout droit\nomdraaien = faire demi-tour"
+  },
+  {
+    "id": "course_005",
+    "type": "grammar",
+    "title": "Les adjectifs possessifs",
+    "nl": "Bezittelijke voornaamwoorden",
+    "fr": "Les adjectifs possessifs",
+    "content_nl": "mijn (mon/ma/mes), jouw (ton/ta/tes), zijn (son/sa/ses), haar (son/sa/ses), ons/onze (notre/nos), jullie (votre/vos), hun (leur/leurs)",
+    "content_fr": "mijn = mon/ma/mes\njouw = ton/ta/tes\nzijn = son/sa/ses (masculin)\nhaar = son/sa/ses (féminin)\nons/onze = notre/nos\njullie = votre/vos\nhun = leur/leurs"
+  },
+  {
+    "id": "course_006",
+    "type": "vocabulary",
+    "title": "Les transports",
+    "nl": "Vervoer",
+    "fr": "Les transports",
+    "content_nl": "de trein (le train), de bus (le bus), de fiets (le vélo), de auto (la voiture), het vliegtuig (l'avion)",
+    "content_fr": "de trein = le train\nde bus = le bus\nde fiets = le vélo\nde auto = la voiture\nhet vliegtuig = l'avion"
+  },
+  {
+    "id": "course_007",
+    "type": "conjugation",
+    "title": "Conjugaison : 'doen' (faire)",
+    "nl": "Het werkwoord 'doen'",
+    "fr": "Le verbe 'faire'",
+    "content_nl": "Ik doe, jij doet, hij doet, wij doen, jullie doen, zij doen",
+    "content_fr": "Ik doe = Je fais\nJij doet = Tu fais\nHij doet = Il fait\nWij doen = Nous faisons\nJullie doen = Vous faites\nZij doen = Ils/Elles font"
+  },
+  {
+    "id": "course_008",
+    "type": "conversation",
+    "title": "Conversation : À la gare",
+    "nl": "Gesprek op het station",
+    "fr": "Conversation à la gare",
+    "content_nl": "A: Een enkeltje naar Amsterdam, alstublieft. B: Dat is 15 euro. A: Wanneer vertrekt de trein? B: Over tien minuten, perron 3.",
+    "content_fr": "A: Un aller simple pour Amsterdam, s'il vous plaît.\nB: C'est 15 euros.\nA: Quand part le train ?\nB: Dans dix minutes, quai 3."
+  },
+  {
+    "id": "course_009",
+    "type": "grammar",
+    "title": "Les articles définis : de / het",
+    "nl": "Lidwoorden: de en het",
+    "fr": "Les articles définis",
+    "content_nl": "de (masculin/féminin), het (neutre). Exemples: de man (l'homme), de vrouw (la femme), het kind (l'enfant)",
+    "content_fr": "de = article pour masculin/féminin\nhet = article pour neutre\nExemples:\nde man = l'homme\nde vrouw = la femme\nhet kind = l'enfant"
+  },
+  {
+    "id": "course_010",
+    "type": "vocabulary",
+    "title": "Les nombres de 11 à 20",
+    "nl": "Getallen van 11 tot 20",
+    "fr": "Les nombres de 11 à 20",
+    "content_nl": "elf (11), twaalf (12), dertien (13), veertien (14), vijftien (15), zestien (16), zeventien (17), achttien (18), negentien (19), twintig (20)",
+    "content_fr": "elf = onze\ntwaalf = douze\ndertien = treize\nveertien = quatorze\nvijftien = quinze\nzestien = seize\nzeventien = dix-sept\nachttien = dix-huit\nnegentien = dix-neuf\ntwintig = vingt"
+  }
+]
+

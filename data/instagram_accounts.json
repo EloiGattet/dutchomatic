@@ -1,0 +1,165 @@
+{
+  "categories": [
+    {
+      "name": "🗣️ Apprendre le néerlandais",
+      "accounts": [
+        {
+          "handle": "@dutchgrammar",
+          "theme": "Grammaire et vocabulaire",
+          "why": "Explications claires, posts visuels, exercices."
+        },
+        {
+          "handle": "@learndutchorg",
+          "theme": "Apprentissage ludique",
+          "why": "Mèmes, expressions, et conseils pour débutants."
+        },
+        {
+          "handle": "@dutchpod101",
+          "theme": "Leçons courtes",
+          "why": "Audio, vocabulaire et culture. Idéal pour les niveaux A1/A2."
+        },
+        {
+          "handle": "@dutchwords",
+          "theme": "Mots et expressions",
+          "why": "Un mot par jour avec exemples et prononciation."
+        }
+      ]
+    },
+    {
+      "name": "🏙️ Voyages & Découvertes",
+      "accounts": [
+        {
+          "handle": "@iamsterdam",
+          "theme": "Amsterdam officiel",
+          "why": "Photos magnifiques, événements, et lieux incontournables."
+        },
+        {
+          "handle": "@holland",
+          "theme": "Pays-Bas en général",
+          "why": "Paysages, villes, et traditions. Très inspirant !"
+        },
+        {
+          "handle": "@the_netherlands",
+          "theme": "Nature et culture",
+          "why": "Moulins, tulipes, canaux… Un vrai dépaysement."
+        },
+        {
+          "handle": "@hiddenholland",
+          "theme": "Lieux insolites",
+          "why": "Découvrir des endroits méconnus mais magiques."
+        },
+        {
+          "handle": "@utrechtmarketing",
+          "theme": "Utrecht",
+          "why": "Pour se plonger dans ta ville préférée (ou une autre à explorer)."
+        }
+      ]
+    },
+    {
+      "name": "🍽️ Gastronomie néerlandaise",
+      "accounts": [
+        {
+          "handle": "@dutchfoodie",
+          "theme": "Recettes et restaurants",
+          "why": "Stroopwafels, bitterballen, et adresses gourmandes."
+        },
+        {
+          "handle": "@dutchbaking",
+          "theme": "Pâtisseries",
+          "why": "Recettes de poffertjes, appeltaart, et autres douceurs."
+        },
+        {
+          "handle": "@cheeseofholland",
+          "theme": "Fromages",
+          "why": "Tout sur le Gouda, Edam, et autres trésors fromagers."
+        }
+      ]
+    },
+    {
+      "name": "🎨 Art & Culture",
+      "accounts": [
+        {
+          "handle": "@rijksmuseum",
+          "theme": "Art néerlandais",
+          "why": "Chefs-d'œuvre de Rembrandt, Vermeer, et expositions."
+        },
+        {
+          "handle": "@vanmuseumnl",
+          "theme": "Van Gogh",
+          "why": "Plongeon dans l'univers du peintre."
+        },
+        {
+          "handle": "@mauritshuis",
+          "theme": "Peintures classiques",
+          "why": "La Jeune Fille à la perle et bien plus."
+        },
+        {
+          "handle": "@dutchdesign",
+          "theme": "Design",
+          "why": "Mobilier, architecture, et créations contemporaines."
+        }
+      ]
+    },
+    {
+      "name": "😂 Humour & Vie locale",
+      "accounts": [
+        {
+          "handle": "@dutchreview",
+          "theme": "Humour et actualités",
+          "why": "Un regard décalé sur la vie aux Pays-Bas."
+        },
+        {
+          "handle": "@dutchmemes",
+          "theme": "Mèmes néerlandais",
+          "why": "Pour rire et comprendre l'humour local."
+        },
+        {
+          "handle": "@dutchiesdaily",
+          "theme": "Vie quotidienne",
+          "why": "Les habitudes et clichés des Néerlandais."
+        }
+      ]
+    },
+    {
+      "name": "🌷 Nature & Paysages",
+      "accounts": [
+        {
+          "handle": "@keukenhof",
+          "theme": "Jardins de tulipes",
+          "why": "Un régal pour les yeux, surtout au printemps."
+        },
+        {
+          "handle": "@waddeneilanden",
+          "theme": "Îles Frisonnes",
+          "why": "Plages, phoques, et nature préservée."
+        },
+        {
+          "handle": "@visitfriesland",
+          "theme": "Frise",
+          "why": "Canaux, villages pittoresques, et langue frisonne."
+        }
+      ]
+    },
+    {
+      "name": "🚲 Vie pratique & Insolite",
+      "accounts": [
+        {
+          "handle": "@bicycle_dutch",
+          "theme": "Culture vélo",
+          "why": "Pourquoi les Néerlandais adorent le vélo ?"
+        },
+        {
+          "handle": "@dutchscenery",
+          "theme": "Paysages",
+          "why": "Des images qui donnent envie de partir tout de suite."
+        },
+        {
+          "handle": "@dutchhistory",
+          "theme": "Histoire",
+          "why": "Anecdotes et faits historiques surprenants."
+        }
+      ]
+    }
+  ]
+}
+

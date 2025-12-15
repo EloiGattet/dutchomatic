@@ -67,14 +67,35 @@
         </div>
     </form>
 
-    <div class="section">
-        <h3>État actuel</h3>
-        <div class="card">
-            <p><strong>Niveau:</strong> {{ state.niveau_actuel }}</p>
-            <p><strong>XP:</strong> {{ state.xp }}</p>
-            <p><strong>Compteur total:</strong> {{ state.compteur_total }}</p>
-            <p><strong>Dernier exercice:</strong> {{ state.last_exercise_id or '-' }}</p>
+        <div class="section">
+            <h3>Voyage aux Pays-Bas</h3>
+            <div class="form-group">
+                <label>Date du prochain voyage</label>
+                <input type="date" name="trip_date" value="{{ state.trip_date or '' }}">
+                <small>Format: YYYY-MM-DD (ex: 2025-06-15)</small>
+            </div>
         </div>
-    </div>
+
+        <div class="section">
+            <h3>Messages d'encouragement</h3>
+            <div class="form-group">
+                <label>Messages (un par ligne)</label>
+                <textarea name="encouragement_messages" rows="5" placeholder="Goed gedaan !&#10;Tot straks !&#10;Geweldig !">{% if state.encouragement_messages %}{{ state.encouragement_messages | join('\n') }}{% endif %}</textarea>
+                <small>Un message sera choisi aléatoirement pour chaque ticket</small>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>État actuel</h3>
+            <div class="card">
+                <p><strong>Niveau:</strong> {{ state.niveau_actuel }}</p>
+                <p><strong>XP:</strong> {{ state.xp }}</p>
+                <p><strong>Compteur total:</strong> {{ state.compteur_total }}</p>
+                <p><strong>Dernier exercice:</strong> {{ state.last_exercise_id or '-' }}</p>
+                {% if state.trip_date %}
+                <p><strong>Prochain voyage:</strong> {{ state.trip_date }}</p>
+                {% endif %}
+            </div>
+        </div>
 </div>
 {% endblock %}

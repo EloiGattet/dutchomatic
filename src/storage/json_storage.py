@@ -20,6 +20,7 @@ class JSONStorage(StorageInterface):
         
         self.exercises_file = self.data_dir / 'exercises.json'
         self.daily_file = self.data_dir / 'daily.json'
+        self.courses_file = self.data_dir / 'courses.json'
         self.state_file = self.data_dir / 'state.json'
         
         self._ensure_files_exist()
@@ -30,6 +31,8 @@ class JSONStorage(StorageInterface):
             self._write_json(self.exercises_file, [])
         if not self.daily_file.exists():
             self._write_json(self.daily_file, [])
+        if not self.courses_file.exists():
+            self._write_json(self.courses_file, [])
         if not self.state_file.exists():
             default_state = State.DEFAULT_STATE.copy()
             self._write_json(self.state_file, default_state)
@@ -198,3 +201,54 @@ class JSONStorage(StorageInterface):
         state_data['history'].append(entry)
         self._write_json(self.state_file, state_data)
         return True
+
+    # Course methods
+    def get_course(self, course_id: str) -> Optional[Dict[str, Any]]:
+        """Get a single course by ID."""
+        courses = self._read_json(self.courses_file)
+        for course in courses:
+            if course.get('id') == course_id:
+                return course
+        return None
+
+    def get_all_courses(self, course_type: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get all courses, optionally filtered by type."""
+        courses = self._read_json(self.courses_file)
+        if course_type:
+            return [course for course in courses if course.get('type') == course_type]
+        return courses
+
+    def add_course(self, course: Dict[str, Any]) -> str:
+        """Add a new course."""
+        courses = self._read_json(self.courses_file)
+        
+        # Check if ID already exists
+        if any(c.get('id') == course.get('id') for c in courses):
+            raise ValueError(f"Course with ID {course.get('id')} already exists")
+        
+        courses.append(course)
+        self._write_json(self.courses_file, courses)
+        return course.get('id', '')
+
+    def update_course(self, course_id: str, course: Dict[str, Any]) -> bool:
+        """Update an existing course."""
+        if course.get('id') != course_id:
+            raise ValueError("Course ID mismatch")
+        
+        courses = self._read_json(self.courses_file)
+        for i, c in enumerate(courses):
+            if c.get('id') == course_id:
+                courses[i] = course
+                self._write_json(self.courses_file, courses)
+                return True
+        return False
+
+    def delete_course(self, course_id: str) -> bool:
+        """Delete a course."""
+        courses = self._read_json(self.courses_file)
+        original_len = len(courses)
+        courses = [c for c in courses if c.get('id') != course_id]
+        if len(courses) < original_len:
+            self._write_json(self.courses_file, courses)
+            return True
+        return False
