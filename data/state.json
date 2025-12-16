@@ -1,8 +1,25 @@
 {
-  "history": [],
-  "last_exercise_id": null,
+  "history": [
+    {
+      "exercise_id": "ex_0010",
+      "printed_at": "2025-12-15T21:14:14.431822Z",
+      "with_answers": false
+    }
+  ],
+  "last_exercise_id": "ex_0010",
   "niveau_actuel": "A1",
-  "xp": 0,
-  "compteur_total": 0,
-  "printed_photos": []
+  "xp": 1,
+  "compteur_total": 1,
+  "printed_photos": [],
+  "trip_date": null,
+  "encouragement_messages": [
+    "Goed gedaan !",
+    "Tot straks !",
+    "Geweldig !",
+    "Fantastisch !",
+    "Uitstekend !"
+  ],
+  "printed_instagram_accounts": [
+    "🏙️ Voyages & Découvertes"
+  ]
 }

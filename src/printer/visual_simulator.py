@@ -507,6 +507,9 @@ class VisualSimulatorPrinter(EscposPrinter):
                     stripped_line = stripped_line.replace("**DOUBLE_SIZE**", "", 1)
                     line = line.replace("**DOUBLE_SIZE**", "", 1)
                     # Pour le simulateur visuel, on utilisera une taille de font plus grande dans le rendu
+                    # Forcer le centrage pour le nom de ville
+                    is_centered = True
+                    text_align = "center"
                 
                 # Décider si on imprime directement (font interne) ou en image (font custom/emojis)
                 # Vérifier d'abord sur la ligne originale (avec espaces) pour ne pas rater les emojis
@@ -539,7 +542,8 @@ class VisualSimulatorPrinter(EscposPrinter):
                         pass
                 
                 # Déterminer l'alignement pour le rendu
-                text_align = "center" if is_centered else "left"
+                if not is_double_size:
+                    text_align = "center" if is_centered else "left"
                 
                 # Si pas d'emojis et pas de caractères Unicode spéciaux, utiliser les fonts internes
                 if not has_emoji and not has_special_unicode:
@@ -551,21 +555,19 @@ class VisualSimulatorPrinter(EscposPrinter):
                             font_size=32,  # Taille plus grande pour le nom de ville
                             font_path=self.default_font_path,
                             padding=(0, 0, 0, 0),
-                            align=text_align,
+                            align="center",  # Toujours centrer pour DOUBLE_SIZE
                         )
                         if img:
-                            self.set_align(text_align)
+                            self.set_align("center")
                             self.print_image(img)
                             self.set_align("left")
                             self.lf(1)
                         else:
-                            # Fallback: utiliser les fonts internes avec double_size
-                            self.set_text_style(size="ds")
-                            if is_centered:
-                                self.set_align("center")
-                            self.line(stripped_line if is_centered else line)
-                            if is_centered:
-                                self.set_align("left")
+                            # Fallback: utiliser les fonts internes avec Font A, double_size et centrage
+                            self.set_text_style(font="A", size="ds")
+                            self.set_align("center")
+                            self.line(stripped_line)
+                            self.set_align("left")
                             self.set_text_style(size="normal")
                             self.lf(1)
                     else:
