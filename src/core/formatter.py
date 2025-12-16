@@ -14,10 +14,17 @@ from .weather import get_weather, format_weather_line
 
 
 TICKET_WIDTH = 58
+# Largeur en caractères selon la font (pour les séparateurs) :
+# - Font A : 32 caractères par ligne
+# - Font B : 42 caractères par ligne
+# Note: Les séparateurs utilisent chars_per_line de l'imprimante qui s'adapte à la font active
+SEPARATOR_WIDTH_FONT_A = 32
+SEPARATOR_WIDTH_FONT_B = 42
 template_manager = TicketTemplateManager()
 
-# Caractères accentués supportés par l'imprimante (à garder)
-SUPPORTED_ACCENTS = {'à', 'é', 'è', 'ç', 'À', 'É', 'È', 'Ç'}
+# Caractères accentués supportés par l'imprimante avec GB18030 (à garder)
+# D'après les tests: é, è, ê et ù fonctionnent avec GB18030
+SUPPORTED_ACCENTS = {'à', 'é', 'è', 'ê', 'ù', 'ç', 'À', 'É', 'È', 'Ê', 'Ù', 'Ç'}
 
 # Mapping des caractères accentués vers leurs équivalents sans accent
 ACCENT_REPLACEMENTS = {
@@ -42,8 +49,8 @@ ACCENT_REPLACEMENTS = {
 def _normalize_accents(text: str) -> str:
     """Normalise les accents pour l'imprimante.
     
-    Garde uniquement à, é, è, ç et remplace tous les autres accents
-    par leurs équivalents sans accent.
+    Garde les accents supportés par GB18030 (à, é, è, ê, ù, ç) et remplace
+    tous les autres accents par leurs équivalents sans accent.
     
     Args:
         text: Texte à normaliser
@@ -57,7 +64,7 @@ def _normalize_accents(text: str) -> str:
     result = []
     for char in text:
         if char in SUPPORTED_ACCENTS:
-            # Garder les accents supportés (à, é, è, ç)
+            # Garder les accents supportés par GB18030 (à, é, è, ê, ù, ç)
             result.append(char)
         elif char in ACCENT_REPLACEMENTS:
             # Remplacer les autres accents
@@ -83,6 +90,22 @@ def _load_instagram_accounts() -> list:
             return data.get('categories', [])
     except Exception:
         return []
+
+
+def _load_default_trip_date() -> Optional[str]:
+    """Charge la date par défaut du prochain voyage depuis trip_config.json."""
+    project_root = Path(__file__).parent.parent.parent
+    trip_config_path = project_root / 'config' / 'trip_config.json'
+    
+    if not trip_config_path.exists():
+        return None
+    
+    try:
+        with open(trip_config_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('default_trip_date')
+    except Exception:
+        return None
 
 
 def _calculate_days_until_trip(trip_date_str: Optional[str]) -> Optional[int]:
@@ -171,12 +194,16 @@ def _wrap_text(lines: list, text: str, width: int, indent: str = '') -> None:
 def _format_box(title: str, width: int = TICKET_WIDTH) -> str:
     """Format a boxed title with visible separators.
     
-    Utilise des séparateurs simples (_) au lieu de caractères Unicode de boîte
+    Utilise des em-dash (—) compatibles avec GB18030 au lieu de caractères Unicode de boîte
     pour une meilleure visibilité sur imprimantes thermiques.
     Le titre est wrappé sur plusieurs lignes si trop long.
+    
+    NOTE: Utilise Font B (42 caractères) par défaut pour les séparateurs.
+    Si Font A est utilisée (32 caractères), les séparateurs seront plus courts.
     """
-    # Créer un titre avec séparateurs visibles
-    separator = '_' * width
+    # Créer un titre avec séparateurs visibles (em-dash fonctionne avec GB18030)
+    # Utilise Font B par défaut (42 caractères)
+    separator = '—' * SEPARATOR_WIDTH_FONT_B
     centered_title = _center_text(title, width)
     
     return f"{separator}\n{centered_title}\n{separator}"
@@ -331,7 +358,7 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
     
     # Séparateur avant la section EXERCICE
     if template.get('content', {}).get('show_title', True):
-        lines.append('_' * TICKET_WIDTH)
+        lines.append('—' * SEPARATOR_WIDTH_FONT_B)
     
     # Title (if enabled) - format compact
     if template.get('content', {}).get('show_title', True):
@@ -401,7 +428,7 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
     # Daily bonus (étendu) - format compact
     bonus_config = template.get('bonus', {})
     if daily and bonus_config.get('enabled', True):
-        lines.append('_' * TICKET_WIDTH)
+        lines.append('—' * SEPARATOR_WIDTH_FONT_B)
         _center_text_lines(lines, '🎁 PHRASE DU JOUR', TICKET_WIDTH)
         
         # Expression du jour (classique) - pour expression, fact, quote
@@ -413,7 +440,7 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
         # Recette (si présente)
         recipe = daily.get('recipe', '')
         if recipe and bonus_config.get('show_recipe', True):
-            lines.append('_' * TICKET_WIDTH)
+            lines.append('—' * SEPARATOR_WIDTH_FONT_B)
             _center_text_lines(lines, '🍳 RECETTE', TICKET_WIDTH)
             _wrap_text(lines, recipe, TICKET_WIDTH)
         
@@ -435,14 +462,14 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
         # Défi (si présent)
         challenge = daily.get('challenge', '')
         if challenge and bonus_config.get('show_challenge', True):
-            lines.append('_' * TICKET_WIDTH)
+            lines.append('—' * SEPARATOR_WIDTH_FONT_B)
             _center_text_lines(lines, '💪 DÉFI DU JOUR', TICKET_WIDTH)
             _wrap_text(lines, challenge, TICKET_WIDTH)
     
     # Section cours (si un cours est fourni) - format compact
     course_config = template.get('course', {})
     if course and course_config.get('enabled', True):
-        lines.append('_' * TICKET_WIDTH)
+        lines.append('—' * SEPARATOR_WIDTH_FONT_B)
         
         # Titre simplifié
         course_title = course.get('title', '')
@@ -457,13 +484,16 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
             content_nl = course.get('content_nl', '')
             content_fr = course.get('content_fr', '')
             if content_nl and content_fr:
-                # Afficher d'abord le contenu NL (peut être sur une ligne)
-                nl_normalized = _normalize_accents(content_nl.strip())
-                # Si trop long, wrapper
-                if len(nl_normalized) > TICKET_WIDTH:
-                    _wrap_text(lines, nl_normalized, TICKET_WIDTH)
-                else:
-                    lines.append(nl_normalized)
+                # Afficher d'abord le contenu NL ligne par ligne (comme le FR)
+                for nl_line in content_nl.split('\n'):
+                    nl_stripped = nl_line.strip()
+                    if nl_stripped:
+                        nl_normalized = _normalize_accents(nl_stripped)
+                        # Wrapper si nécessaire
+                        if len(nl_normalized) > TICKET_WIDTH:
+                            _wrap_text(lines, nl_normalized, TICKET_WIDTH)
+                        else:
+                            lines.append(nl_normalized)
                 
                 # Puis le contenu FR ligne par ligne
                 for fr_line in content_fr.split('\n'):
@@ -490,13 +520,15 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
     # Ville du jour - format compact, carte dans cette section
     city_config = template.get('city', {})
     if city and city_config.get('enabled', True):
-        lines.append('_' * TICKET_WIDTH)
+        lines.append('—' * SEPARATOR_WIDTH_FONT_B)
         _center_text_lines(lines, '🏙️  VILLE DU JOUR', TICKET_WIDTH)
         
-        # Nom de la ville
+        # Nom de la ville - en plus gros et centré
         city_name = city.get('name', '')
         if city_name:
-            _center_text_lines(lines, city_name.upper(), TICKET_WIDTH)
+            # Utiliser un marqueur spécial pour indiquer le texte en double taille
+            # Le marqueur sera détecté dans print_text pour appliquer le style
+            lines.append(f"**DOUBLE_SIZE**{city_name.upper()}")
         
         # Météo (si activée et connecté)
         if city_config.get('show_weather', True):
@@ -528,15 +560,12 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
                 normalized_anecdote = normalized_anecdote[:77] + '...'
             lines.append('💡 ' + normalized_anecdote)
         
-        # Lieu à visiter - format compact, pas de saut de ligne
+        # Lieu à visiter - format compact, avec wrapping automatique
         place = city.get('place_to_visit', '')
         if place:
             lines.append('📍 À VISITER')
-            # Pas de wrap, mettre tout sur une ligne (l'imprimante gérera si nécessaire)
+            # Laisser le wrapping se faire automatiquement par l'imprimante
             normalized_place = _normalize_accents(place)
-            # Si vraiment trop long (>80), tronquer
-            if len(normalized_place) > 80:
-                normalized_place = normalized_place[:77] + '...'
             lines.append(normalized_place)
     
     # Comptes Instagram (si activé) - format compact, un seul compte, avec trace
@@ -544,7 +573,7 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
     if instagram_config.get('enabled', False):
         instagram_categories = _load_instagram_accounts()
         if instagram_categories:
-            lines.append('_' * TICKET_WIDTH)
+            lines.append('—' * SEPARATOR_WIDTH_FONT_B)
             _center_text_lines(lines, '📱 COMPTES À SUIVRE', TICKET_WIDTH)
             
             # Récupérer les comptes déjà affichés depuis le state
@@ -583,24 +612,12 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
                     elif handle:
                         lines.append(_normalize_accents(handle))
                     if why:
-                        # Pas de wrap pour le "why", mettre sur une ligne
+                        # Laisser le wrapping se faire automatiquement par l'imprimante
                         normalized_why = _normalize_accents(why)
-                        if len(normalized_why) > 80:
-                            normalized_why = normalized_why[:77] + '...'
                         lines.append(f"→ {normalized_why}")
                 
                 # Marquer cette catégorie pour sauvegarde dans state_manager
                 instagram_category = category_name
-    
-    # Countdown voyage (si activé) - format compact
-    countdown_config = template.get('countdown', {})
-    if countdown_config.get('enabled', False) and state:
-        trip_date = state.get('trip_date')
-        days_left = _calculate_days_until_trip(trip_date)
-        if days_left is not None:
-            lines.append('_' * TICKET_WIDTH)
-            _center_text_lines(lines, '✈️  COUNTDOWN VOYAGE', TICKET_WIDTH)
-            _center_text_lines(lines, f"Plus que {days_left} jour{'s' if days_left > 1 else ''} avant les Pays-Bas !", TICKET_WIDTH)
     
     # Footer custom text
     if template.get('footer', {}).get('custom_text'):
@@ -613,10 +630,28 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
         if footer_text:
             lines.append(_normalize_accents(footer_text))
     
+    # Countdown voyage (si activé) - avant le footer
+    countdown_config = template.get('countdown', {})
+    if countdown_config.get('enabled', False):
+        # Récupérer la date depuis le state, ou utiliser la valeur par défaut
+        trip_date = None
+        if state:
+            trip_date = state.get('trip_date')
+        
+        # Si pas de date dans le state, utiliser la valeur par défaut
+        if not trip_date:
+            trip_date = _load_default_trip_date()
+        
+        days_left = _calculate_days_until_trip(trip_date)
+        if days_left is not None:
+            lines.append('—' * SEPARATOR_WIDTH_FONT_B)
+            _center_text_lines(lines, '✈️  COUNTDOWN VOYAGE', TICKET_WIDTH)
+            _center_text_lines(lines, f"Plus que {days_left} jour{'s' if days_left > 1 else ''} avant les Pays-Bas !", TICKET_WIDTH)
+    
     # Footer amélioré (message d'encouragement + compteur) - format compact
     footer_config = template.get('footer', {})
     if footer_config.get('show_encouragement', True) or footer_config.get('show_counter', True):
-        lines.append('_' * TICKET_WIDTH)
+        lines.append('—' * SEPARATOR_WIDTH_FONT_B)
         
         # Message d'encouragement
         if footer_config.get('show_encouragement', True) and state:
@@ -631,7 +666,7 @@ def format_exercise(exercise: Dict, daily: Optional[Dict] = None, city: Optional
             compteur = state.get('compteur_total', 0)
             _center_text_lines(lines, f"Ticket n°{compteur}", TICKET_WIDTH)
         
-        lines.append('_' * TICKET_WIDTH)
+        lines.append('—' * SEPARATOR_WIDTH_FONT_B)
     
     return '\n'.join(lines), header_images, bonus_images, city_images, instagram_category
 
@@ -741,10 +776,10 @@ def format_answers(exercise: Dict, template_id: Optional[str] = None) -> tuple[s
     # Explanations
     explanations = exercise.get('explanations', '')
     if explanations:
-        lines.append('_' * TICKET_WIDTH)
+        lines.append('—' * SEPARATOR_WIDTH_FONT_B)
         lines.append('📝 EXPLICATIONS')
         lines.append(_normalize_accents(explanations))
-        lines.append('_' * TICKET_WIDTH)
+        lines.append('—' * SEPARATOR_WIDTH_FONT_B)
     
     # Footer custom text
     if template.get('footer', {}).get('custom_text'):

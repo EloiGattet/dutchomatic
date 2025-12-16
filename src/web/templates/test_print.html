@@ -9,15 +9,13 @@
     
     <div class="test-section">
         <h3>Séparateurs</h3>
+        <p class="description">Utilisez l'em-dash (—) compatible avec GB18030 (42 caractères en Font B).</p>
         <div class="test-buttons">
-            <button class="btn btn-secondary test-btn" data-type="separator" data-char="-" data-double="false">
-                Séparateur simple (-)
+            <button class="btn btn-secondary test-btn" data-type="separator" data-char="—" data-double="false">
+                Séparateur em-dash (—)
             </button>
-            <button class="btn btn-secondary test-btn" data-type="separator" data-char="=" data-double="false">
-                Séparateur double (=)
-            </button>
-            <button class="btn btn-secondary test-btn" data-type="separator" data-char="-" data-double="true">
-                Séparateur double lignes
+            <button class="btn btn-secondary test-btn" data-type="separator" data-char="—" data-double="true">
+                Séparateur double lignes (—)
             </button>
         </div>
     </div>
@@ -60,6 +58,62 @@
         <div class="test-buttons">
             <button class="btn btn-primary test-btn" data-type="combination">
                 Test complet combiné
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Éléments du template</h3>
+        <div class="test-buttons">
+            <button class="btn btn-secondary test-section-btn" data-route="/print/test/header">
+                Header (logo, texte)
+            </button>
+            <button class="btn btn-secondary test-section-btn" data-route="/print/test/content">
+                Content (titre, prompt, items)
+            </button>
+            <button class="btn btn-secondary test-section-btn" data-route="/print/test/bonus">
+                Bonus (phrase, recette, photo, défi)
+            </button>
+            <button class="btn btn-secondary test-section-btn" data-route="/print/test/city">
+                City (ville, météo, carte)
+            </button>
+            <button class="btn btn-secondary test-section-btn" data-route="/print/test/footer">
+                Footer (encouragement, compteur)
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Exercice spécifique</h3>
+        <p class="description">Sélectionnez un exercice dans la liste pour le tester.</p>
+        <div class="test-buttons">
+            <select id="exercise-selector" class="exercise-selector">
+                <option value="">Chargement...</option>
+            </select>
+            <button class="btn btn-primary" id="btn-test-exercise" disabled>
+                Tester cet exercice
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Photo surprise</h3>
+        <p class="description">Sélectionnez une photo surprise dans la liste pour la tester.</p>
+        <div class="test-buttons">
+            <select id="surprise-photo-selector" class="exercise-selector">
+                <option value="">Chargement...</option>
+            </select>
+            <button class="btn btn-primary" id="btn-test-surprise-photo" disabled>
+                Tester cette photo
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Centrage</h3>
+        <div class="test-buttons">
+            <button class="btn btn-secondary test-section-btn" data-route="/print/test/center">
+                Test centrage de texte
             </button>
         </div>
     </div>
@@ -161,39 +215,235 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Gestion des boutons de test de section
+    document.querySelectorAll('.test-section-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const route = this.dataset.route;
+            
+            this.disabled = true;
+            showStatus('Impression en cours...', false);
+            
+            try {
+                const response = await fetch(route, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(`✓ Test de section imprimé avec succès!`, false);
+                    setTimeout(loadLogs, 1000);
+                } else {
+                    showStatus(`✗ Erreur: ${result.error}`, true);
+                }
+            } catch (error) {
+                showStatus(`✗ Erreur: ${error.message}`, true);
+            } finally {
+                this.disabled = false;
+            }
+        });
+    });
+    
+    // Charger la liste des exercices
+    async function loadExercises() {
+        const selector = document.getElementById('exercise-selector');
+        const btnTest = document.getElementById('btn-test-exercise');
+        
+        try {
+            const response = await fetch('/print/test/exercises');
+            const result = await response.json();
+            
+            if (result.success && result.exercises) {
+                selector.innerHTML = '<option value="">Sélectionnez un exercice...</option>';
+                
+                result.exercises.forEach(ex => {
+                    const option = document.createElement('option');
+                    option.value = ex.id;
+                    option.textContent = `${ex.title} (${ex.niveau}) - ${ex.type || 'N/A'}`;
+                    selector.appendChild(option);
+                });
+                
+                // Activer le bouton quand un exercice est sélectionné
+                selector.addEventListener('change', function() {
+                    btnTest.disabled = !this.value;
+                });
+            } else {
+                selector.innerHTML = '<option value="">Aucun exercice disponible</option>';
+            }
+        } catch (error) {
+            selector.innerHTML = '<option value="">Erreur de chargement</option>';
+            console.error('Erreur loadExercises:', error);
+        }
+    }
+    
+    // Tester un exercice spécifique
+    document.getElementById('btn-test-exercise').addEventListener('click', async function() {
+        const selector = document.getElementById('exercise-selector');
+        const exerciseId = selector.value;
+        
+        if (!exerciseId) {
+            showStatus('Veuillez sélectionner un exercice', true);
+            return;
+        }
+        
+        this.disabled = true;
+        showStatus('Impression en cours...', false);
+        
+        try {
+            const response = await fetch(`/print/test/exercise/${exerciseId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showStatus(`✓ Exercice "${result.title}" imprimé avec succès!`, false);
+                setTimeout(loadLogs, 1000);
+            } else {
+                showStatus(`✗ Erreur: ${result.error}`, true);
+            }
+        } catch (error) {
+            showStatus(`✗ Erreur: ${error.message}`, true);
+        } finally {
+            this.disabled = false;
+        }
+    });
+    
+    // Charger la liste des photos surprise
+    async function loadSurprisePhotos() {
+        const selector = document.getElementById('surprise-photo-selector');
+        const btnTest = document.getElementById('btn-test-surprise-photo');
+        
+        try {
+            const response = await fetch('/print/test/surprise-photos');
+            const result = await response.json();
+            
+            if (result.success && result.photos) {
+                selector.innerHTML = '<option value="">Sélectionnez une photo...</option>';
+                
+                result.photos.forEach(photo => {
+                    const option = document.createElement('option');
+                    option.value = photo.filename;
+                    option.textContent = photo.filename;
+                    selector.appendChild(option);
+                });
+                
+                // Activer le bouton quand une photo est sélectionnée
+                selector.addEventListener('change', function() {
+                    btnTest.disabled = !this.value;
+                });
+            } else {
+                selector.innerHTML = '<option value="">Aucune photo disponible</option>';
+            }
+        } catch (error) {
+            selector.innerHTML = '<option value="">Erreur de chargement</option>';
+            console.error('Erreur loadSurprisePhotos:', error);
+        }
+    }
+    
+    // Tester une photo surprise spécifique
+    document.getElementById('btn-test-surprise-photo').addEventListener('click', async function() {
+        const selector = document.getElementById('surprise-photo-selector');
+        const filename = selector.value;
+        
+        if (!filename) {
+            showStatus('Veuillez sélectionner une photo', true);
+            return;
+        }
+        
+        this.disabled = true;
+        showStatus('Impression en cours...', false);
+        
+        try {
+            const response = await fetch(`/print/test/surprise-photo/${encodeURIComponent(filename)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showStatus(`✓ Photo "${result.filename}" imprimée avec succès!`, false);
+                setTimeout(loadLogs, 1000);
+            } else {
+                showStatus(`✗ Erreur: ${result.error}`, true);
+            }
+        } catch (error) {
+            showStatus(`✗ Erreur: ${error.message}`, true);
+        } finally {
+            this.disabled = false;
+        }
+    });
+    
+    // Charger les exercices et photos au chargement
+    loadExercises();
+    loadSurprisePhotos();
+    
     // Charger les logs
     async function loadLogs() {
         try {
             const response = await fetch('/print/logs');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const result = await response.json();
             
-            if (result.success) {
-                if (result.logs.length === 0) {
-                    logsList.innerHTML = '<p class="no-logs">Aucun log disponible</p>';
-                    return;
-                }
-                
-                logsList.innerHTML = '<ul class="logs-list-items">' + 
-                    result.logs.map(log => {
-                        const date = new Date(log.modified * 1000);
-                        const sizeKB = (log.size / 1024).toFixed(2);
-                        return `<li>
-                            <span class="log-name">${log.filename}</span>
-                            <span class="log-info">${date.toLocaleString()} - ${sizeKB} KB</span>
-                            <button class="btn btn-small view-log-btn" data-filename="${log.filename}">Voir</button>
-                            <a href="/print/logs/${log.filename}/download" class="btn btn-small">Télécharger</a>
-                        </li>`;
-                    }).join('') + '</ul>';
-                
-                // Ajouter les listeners pour les boutons "Voir"
-                document.querySelectorAll('.view-log-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        viewLog(this.dataset.filename);
-                    });
-                });
+            if (!result) {
+                logsList.innerHTML = '<p class="error">Réponse invalide du serveur</p>';
+                return;
             }
+            
+            if (result.success === false) {
+                logsList.innerHTML = `<p class="error">Erreur: ${result.error || 'Erreur inconnue'}</p>`;
+                return;
+            }
+            
+            if (result.success !== true) {
+                logsList.innerHTML = '<p class="error">Format de réponse inattendu</p>';
+                return;
+            }
+            
+            if (!result.logs || !Array.isArray(result.logs)) {
+                logsList.innerHTML = '<p class="no-logs">Aucun log disponible</p>';
+                return;
+            }
+            
+            if (result.logs.length === 0) {
+                logsList.innerHTML = '<p class="no-logs">Aucun log disponible</p>';
+                return;
+            }
+            
+            logsList.innerHTML = '<ul class="logs-list-items">' + 
+                result.logs.map(log => {
+                    const date = new Date(log.modified * 1000);
+                    const sizeKB = (log.size / 1024).toFixed(2);
+                    return `<li>
+                        <span class="log-name">${log.filename}</span>
+                        <span class="log-info">${date.toLocaleString()} - ${sizeKB} KB</span>
+                        <button class="btn btn-small view-log-btn" data-filename="${log.filename}">Voir</button>
+                        <a href="/print/logs/${log.filename}/download" class="btn btn-small">Télécharger</a>
+                    </li>`;
+                }).join('') + '</ul>';
+            
+            // Ajouter les listeners pour les boutons "Voir"
+            document.querySelectorAll('.view-log-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    viewLog(this.dataset.filename);
+                });
+            });
         } catch (error) {
-            logsList.innerHTML = '<p class="error">Erreur lors du chargement des logs</p>';
+            logsList.innerHTML = `<p class="error">Erreur lors du chargement des logs: ${error.message}</p>`;
+            console.error('Erreur loadLogs:', error);
         }
     }
     
@@ -407,6 +657,22 @@ document.addEventListener('DOMContentLoaded', function() {
     font-style: italic;
     text-align: center;
     padding: 2rem;
+}
+
+.exercise-selector {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 300px;
+    margin-right: 1rem;
+}
+
+.test-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
 }
 </style>
 {% endblock %}

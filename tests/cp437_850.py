@@ -36,7 +36,7 @@ with serial.Serial(
         time.sleep(0.1)
 
         # t = code page (0..7 pour chercher d'éventuelles tables cachées)
-        for t in [0,1]:
+        for t in [1]:
             set_charsets(ser, R, t)
             ser.write(f"[R={R} t={t}]\n".encode("ascii"))
 

@@ -100,8 +100,8 @@ def gps_to_image_coords(
 def generate_map_with_point(
     city: Dict,
     map_path: Optional[str] = None,
-    point_radius: int = 5,
-    point_color: Tuple[int, int, int] = (255, 0, 0),  # Rouge
+    point_radius: int = 7,
+    point_color: Tuple[int, int, int] = (0, 0, 0),  # Noir
     output_path: Optional[str] = None
 ) -> Optional['Image.Image']:
     """Génère une image de carte avec un point superposé pour la ville.

@@ -60,6 +60,63 @@ all_exercises = storage.get_all_exercises({'niveau': 'A1'})
 state = storage.get_state()
 ```
 
+## Utilitaires
+
+### Conversion d'images avec dithering
+
+Le projet inclut des utilitaires pour convertir des images en noir et blanc avec dithering error diffusion, optimisées pour l'impression thermique (384px de large).
+
+#### Interface graphique interactive
+
+Lancez l'interface graphique pour convertir des images avec prévisualisation en temps réel :
+
+```bash
+python -m utils.image_converter_gui
+```
+
+Fonctionnalités :
+- **Sélection d'image** : Bouton "Parcourir" pour choisir une image
+- **Prévisualisation en temps réel** : Affichage côte à côte de l'original et du résultat
+- **Contrôles ajustables** :
+  - **Algorithme de dithering** : Atkinson+, Atkinson, Floyd-Steinberg, Sierra24A, Stucki
+  - **Luminosité** : Curseur de -100 à +100
+  - **Contraste** : Curseur de 0.0 à 2.0
+- **Sauvegarde** : Enregistre automatiquement dans `data/surprise_photos` en PNG compressé
+
+#### Conversion par lots
+
+Pour convertir un dossier entier d'images :
+
+```bash
+python -m utils.batch_convert /chemin/vers/dossier
+```
+
+Options disponibles :
+- `--output-dir` : Dossier de sortie (défaut: `data/surprise_photos`)
+- `--width` : Largeur de sortie en pixels (défaut: 384)
+- `--algorithm` : Algorithme de dithering (défaut: `atkinson_plus`)
+  - Options : `atkinson_plus`, `atkinson`, `floyd_steinberg`, `sierra24a`, `stucki`
+- `--brightness` : Ajustement de luminosité -100 à +100 (défaut: 0.0)
+- `--contrast` : Ajustement de contraste 0.0 à 2.0 (défaut: 1.0)
+
+Exemple :
+```bash
+python -m utils.batch_convert ~/Photos/vacances --algorithm sierra24a --brightness 10 --contrast 1.2
+```
+
+#### Algorithmes de dithering disponibles
+
+- **Atkinson+** (recommandé) : Variante améliorée d'Atkinson, bon compromis qualité/vitesse
+- **Atkinson** : Algorithme classique, diffusion d'erreur sur 6 pixels
+- **Floyd-Steinberg** : Algorithme historique, très répandu
+- **Sierra24A** : Variante Sierra, bonne qualité pour les détails
+- **Stucki** : Haute qualité, traitement plus lent mais meilleur rendu
+
+Les images converties sont automatiquement :
+- Redimensionnées à 384px de large (proportionnellement)
+- Converties en noir et blanc avec dithering error diffusion
+- Sauvegardées en PNG compressé dans `data/surprise_photos`
+
 ## Déploiement
 
 ### Déploiement sur Raspberry Pi

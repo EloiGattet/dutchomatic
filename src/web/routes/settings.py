@@ -2,8 +2,7 @@
 
 import json
 import os
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from src.web.app import storage
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
 
 bp = Blueprint('settings', __name__, url_prefix='/settings')
 
@@ -83,6 +82,7 @@ def index():
             save_settings(settings)
             
             # Update state: trip_date and encouragement_messages
+            storage = current_app.extensions['storage']
             state = storage.get_state()
             trip_date = request.form.get('trip_date', '').strip()
             if trip_date:
@@ -106,5 +106,6 @@ def index():
             flash(f'Erreur: {str(e)}', 'error')
     
     settings = load_settings()
+    storage = current_app.extensions['storage']
     state = storage.get_state()
     return render_template('settings.html', settings=settings, state=state)

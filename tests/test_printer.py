@@ -24,22 +24,29 @@ def test_printer():
         print()
         
         # Test text
+        # Utiliser em-dash (—) pour les séparateurs (compatible GB18030)
+        # Largeur: 32 caractères en Font A, 42 caractères en Font B
+        # Éviter les box drawing (╔║═╝) qui s'affichent en carrés
+        # Caractères accentués supportés: à é è ê ù (fonctionnent avec GB18030)
+        # Utiliser chars_per_line de l'imprimante (s'adapte à la font active)
+        separator_width = printer.chars_per_line if hasattr(printer, 'chars_per_line') else 42
         test_text = (
-            "╔═════════════════════════════╗\n"
-            "║  TEST D'IMPRESSION   ║\n"
-            "╚═════════════════════════════╝\n"
+            "TEST D'IMPRESSION\n"
             "\n"
             "Ceci est un test d'impression.\n"
             "\n"
-            "Si vous voyez ce ticket, l'imprimante fonctionne ! ✓\n"
+            "Si vous voyez ce ticket, l'imprimante fonctionne !\n"
             "\n"
-            "Caractères spéciaux: é è à ç ù\n"
-            "Emojis: 🎉 ✅ 🚀\n"
+            "Caractères accentués supportés: à é è ê ù\n"
+            f"Font active: {printer._font_internal if hasattr(printer, '_font_internal') else '?'} ({separator_width} chars)\n"
+            "Séparateur em-dash (—):\n"
+            "\n"
+            "—" * separator_width + "\n"
             "\n"
             "Ligne de test avec du texte qui peut être long et qui\n"
             "devrait être correctement formatée sur plusieurs lignes.\n"
             "\n"
-            "──────────────────────────────────────────────────────────\n"
+            "—" * separator_width + "\n"
             "\n"
             "Test terminé avec succès!\n"
         )

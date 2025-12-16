@@ -2,7 +2,6 @@
 
 import json
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, current_app
-from src.web.app import storage
 from src.utils.validators import validate_exercise
 
 bp = Blueprint('exercises', __name__, url_prefix='/exercices')
@@ -11,6 +10,7 @@ bp = Blueprint('exercises', __name__, url_prefix='/exercices')
 @bp.route('/')
 def list_exercises():
     """List all exercises with filters."""
+    storage = current_app.extensions['storage']
     niveau = request.args.get('niveau')
     type_filter = request.args.get('type')
     tag = request.args.get('tag')
@@ -31,6 +31,7 @@ def list_exercises():
 def view_exercise(exercise_id):
     """View a single exercise."""
     try:
+        storage = current_app.extensions['storage']
         current_app.logger.info(f'Viewing exercise: {exercise_id}')
         exercise = storage.get_exercise(exercise_id)
         if not exercise:
@@ -49,6 +50,7 @@ def create_exercise():
     """Create a new exercise."""
     if request.method == 'POST':
         try:
+            storage = current_app.extensions['storage']
             data = request.get_json() if request.is_json else request.form.to_dict()
             if 'items' in data and isinstance(data['items'], str):
                 data['items'] = json.loads(data['items'])
@@ -73,6 +75,7 @@ def create_exercise():
 def edit_exercise(exercise_id):
     """Edit an existing exercise."""
     try:
+        storage = current_app.extensions['storage']
         current_app.logger.info(f'Editing exercise: {exercise_id}')
         exercise = storage.get_exercise(exercise_id)
         if not exercise:
@@ -111,6 +114,7 @@ def edit_exercise(exercise_id):
 def delete_exercise(exercise_id):
     """Delete an exercise."""
     try:
+        storage = current_app.extensions['storage']
         storage.delete_exercise(exercise_id)
         if request.is_json:
             return jsonify({'success': True})
@@ -126,6 +130,7 @@ def delete_exercise(exercise_id):
 @bp.route('/export')
 def export_exercises():
     """Export all exercises as JSON."""
+    storage = current_app.extensions['storage']
     exercises = storage.get_all_exercises()
     return jsonify(exercises), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
@@ -134,6 +139,7 @@ def export_exercises():
 def import_exercises():
     """Import exercises from JSON."""
     try:
+        storage = current_app.extensions['storage']
         if request.is_json:
             data = request.get_json()
         else:

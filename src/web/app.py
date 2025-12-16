@@ -15,6 +15,8 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 data_dir = os.path.join(project_root, 'data')
 try:
     storage = JSONStorage(data_dir=data_dir)
+    # Store in app.extensions to avoid circular imports
+    app.extensions['storage'] = storage
 except Exception as e:
     # Log to stderr since logging might not be set up yet
     import sys

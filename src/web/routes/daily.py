@@ -1,8 +1,7 @@
 """Daily management routes."""
 
 import json
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
-from src.web.app import storage
+from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, current_app
 from src.utils.validators import validate_daily
 
 bp = Blueprint('daily', __name__, url_prefix='/daily')
@@ -11,6 +10,7 @@ bp = Blueprint('daily', __name__, url_prefix='/daily')
 @bp.route('/')
 def list_daily():
     """List all daily items with filters."""
+    storage = current_app.extensions['storage']
     kind = request.args.get('kind')
     daily_items = storage.get_all_daily(kind=kind)
     return render_template('daily.html', daily_items=daily_items, filter_kind=kind)
@@ -21,6 +21,7 @@ def create_daily():
     """Create a new daily item."""
     if request.method == 'POST':
         try:
+            storage = current_app.extensions['storage']
             data = request.get_json() if request.is_json else request.form.to_dict()
             daily_id = storage.add_daily(data)
             if request.is_json:
@@ -38,6 +39,7 @@ def create_daily():
 @bp.route('/<daily_id>/edit', methods=['GET', 'POST'])
 def edit_daily(daily_id):
     """Edit an existing daily item."""
+    storage = current_app.extensions['storage']
     daily_item = storage.get_daily(daily_id)
     if not daily_item:
         flash('Élément daily non trouvé', 'error')
@@ -63,6 +65,7 @@ def edit_daily(daily_id):
 def delete_daily(daily_id):
     """Delete a daily item."""
     try:
+        storage = current_app.extensions['storage']
         storage.delete_daily(daily_id)
         if request.is_json:
             return jsonify({'success': True})
@@ -78,6 +81,7 @@ def delete_daily(daily_id):
 @bp.route('/export')
 def export_daily():
     """Export all daily items as JSON."""
+    storage = current_app.extensions['storage']
     daily_items = storage.get_all_daily()
     return jsonify(daily_items), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
@@ -86,6 +90,7 @@ def export_daily():
 def import_daily():
     """Import daily items from JSON."""
     try:
+        storage = current_app.extensions['storage']
         if request.is_json:
             data = request.get_json()
         else:

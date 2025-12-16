@@ -6,8 +6,8 @@
   "timeout": 1,
   "width": 58,
   "width_px": 384,
-  "codepage": "cp850",
+  "codepage": "gb18030",
   "international": "FRANCE",
-  "default_encoding": "cp850",
+  "default_encoding": "gb18030",
   "default_font_path": null
 }

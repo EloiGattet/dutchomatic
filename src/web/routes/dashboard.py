@@ -1,7 +1,6 @@
 """Dashboard routes."""
 
-from flask import Blueprint, render_template
-from src.web.app import storage
+from flask import Blueprint, render_template, current_app
 
 bp = Blueprint('dashboard', __name__)
 
@@ -9,6 +8,7 @@ bp = Blueprint('dashboard', __name__)
 @bp.route('/')
 def index():
     """Dashboard home page."""
+    storage = current_app.extensions['storage']
     state = storage.get_state()
     exercises = storage.get_all_exercises()
     daily_items = storage.get_all_daily()

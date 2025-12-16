@@ -96,20 +96,11 @@ def test_accents(printer: EscposPrinter, paths: Dict[str, Path]) -> None:
     printer.set_align("left")
     printer.set_text_style()  # reset style
     
-    log("Test avec CP850 n=1 (A2)...")
-    printer.line("Accents FR (n=1): à é è ê ë ï ô ù ç €")
+    log("Test avec CP850 n=1 (R=1, t=1)...")
+    printer.line("Accents FR: à é è ê ë ï ô ù ç €")
     printer.line("Majuscules: É È Ê Ë À Â Ä Ç Ù Û Ü Ô Ö Î Ï")
     printer.line("Texte avec accents: Éléoï")
-    printer.lf(1)
-    
-    log("Test avec CP850 n=2 (standard ESC/POS)...")
-    printer.set_codepage("cp850", try_alternative=False)  # Force n=2
-    printer.line("Accents FR (n=2): à é è ê ë ï ô ù ç €")
-    printer.line("Texte avec accents: Éléoï")
-    printer.lf(1)
-    
-    printer.set_codepage("cp850", try_alternative=True)
-    log("✓ Accents testés (n=1 et n=2)")
+    log("✓ Accents testés")
 
 
 def test_fonts_ab(printer: EscposPrinter, paths: Dict[str, Path]) -> None:

@@ -1,6 +1,10 @@
 """ESC/POS printer implementation with low-level control."""
 
-import serial
+try:
+    import serial  # type: ignore
+except ModuleNotFoundError:
+    # pyserial n'est pas requis pour le simulateur / la génération d'aperçus
+    serial = None
 import os
 from datetime import datetime
 from pathlib import Path
@@ -32,16 +36,16 @@ class EscposPrinter(Printer):
         baudrate: int = 9600,
         timeout: int = 1,
         width_px: int = 384,
-        default_encoding: str = "cp850",
+        default_encoding: str = "gb18030",
         default_font_path: Optional[str] = None,
-        codepage: str = "cp850",
+        codepage: str = "gb18030",
         international: str = "FRANCE",
     ):
         """Initialize ESC/POS printer.
         
         L'imprimante est configurée par défaut avec :
-        - International character set: FRANCE (R=1) - nécessaire pour les accents français
-        - Codepage: cp850 - supporte les caractères accentués français
+        - Encoding: GB18030 - supporte les caractères accentués français (mode chinois par défaut)
+        - Pas de configuration ESC R / ESC t nécessaire pour GB18030 (mode par défaut)
         
         Args:
             device: Device path (serial)
@@ -49,11 +53,10 @@ class EscposPrinter(Printer):
             baudrate: Serial baudrate (default: 9600)
             timeout: Serial timeout in seconds (default: 1)
             width_px: Width in pixels (default: 384 for 58mm)
-            default_encoding: Default encoding (default: cp850)
+            default_encoding: Default encoding (default: gb18030)
             default_font_path: Optional path to default font
-            codepage: Codepage to use (default: cp850)
-            international: International character set (default: FRANCE)
-                Doit être "FRANCE" (R=1) pour supporter les accents français.
+            codepage: Codepage to use (default: gb18030)
+            international: International character set (ignoré pour GB18030)
         """
         super().__init__(width)
         self.device = device
@@ -63,11 +66,13 @@ class EscposPrinter(Printer):
         self.encoding = default_encoding
         self.default_font_path = default_font_path
         
-        # Estimation du nombre de caractères par ligne en mode texte interne
+        # Largeur en caractères selon la font :
+        # - Font A : 32 caractères par ligne
+        # - Font B : 42 caractères par ligne
         self.chars_per_line = 32
         
         # État courant des styles texte internes (ESC ! / ESC E / ESC -)
-        self._font_internal = "A"       # 'A' ou 'B'
+        self._font_internal = "A"       # 'A' (32 chars) ou 'B' (42 chars)
         self._double_height = False
         self._double_width = False
         self._bold = False
@@ -123,6 +128,27 @@ class EscposPrinter(Printer):
             cmd_desc = self._decode_escpos_command(data)
             if cmd_desc:
                 description = f"{description} ({cmd_desc})" if description else cmd_desc
+            
+            # Diagnostics spécifiques aux images raster (GS v 0)
+            # Objectif: détecter les bitmaps "vides" (tout blanc) quand l'utilisateur
+            # signale que les images n'apparaissent pas dans le simulateur.
+            if data.startswith(b"\x1D\x76\x30") and len(data) >= 8:
+                try:
+                    xL = data[4]
+                    xH = data[5]
+                    yL = data[6]
+                    yH = data[7]
+                    width_bytes = xL + (xH << 8)
+                    height = yL + (yH << 8)
+                    expected = width_bytes * height
+                    bitmap = data[8:8 + expected]
+                    if expected > 0 and len(bitmap) >= expected:
+                        nonzero = sum(1 for b in bitmap if b)
+                        ink_ratio = nonzero / expected
+                        description = (description + f" [ink_bytes={nonzero}/{expected} ink_ratio={ink_ratio:.3f}]").strip()
+                except Exception:
+                    # Ne pas bloquer le logging si on ne peut pas parser l'image
+                    pass
             
             # Limiter la longueur de la description pour la lisibilité
             if len(data) > 100:
@@ -225,6 +251,16 @@ class EscposPrinter(Printer):
     def _init_printer(self, codepage: str, international: str) -> None:
         """Initialize printer connection and settings."""
         try:
+            if serial is None:
+                raise RuntimeError("pyserial n'est pas installé (module 'serial' introuvable)")
+            
+            # Si la connexion existe déjà et est ouverte, la fermer d'abord
+            if self._ser and self._ser.is_open:
+                try:
+                    self._ser.close()
+                except:
+                    pass
+            
             self._ser = serial.Serial(
                 self.device,
                 baudrate=self.baudrate,
@@ -236,10 +272,13 @@ class EscposPrinter(Printer):
             
             # Initialisation de l'imprimante (reset + codepage + international)
             self.reset()
-            # IMPORTANT: D'abord international (ESC R), puis codepage (ESC t)
-            # L'ordre est crucial : ESC R doit être envoyé avant ESC t
-            # Avec R=1 (FRANCE) + cp850, les accents français sont supportés
-            self.set_international(international)
+            # Configuration de l'encodage
+            # Pour GB18030 (par défaut), pas besoin d'envoyer ESC R ni ESC t
+            # Pour CP850/CP437, il faut ESC R (international) puis ESC t (codepage)
+            if codepage.lower() not in ("gb18030", "gb"):
+                # IMPORTANT: D'abord international (ESC R), puis codepage (ESC t)
+                # L'ordre est crucial : ESC R doit être envoyé avant ESC t
+                self.set_international(international)
             self.set_codepage(codepage)
             
             # Appliquer les paramètres optimaux d'impression
@@ -298,40 +337,43 @@ class EscposPrinter(Printer):
         """Reset basique de l'imprimante."""
         self.raw(b"\x1B\x40", description="RESET")
 
-    def set_codepage(self, codepage: str = "cp850", try_alternative: bool = True) -> None:
+    def set_codepage(self, codepage: str = "gb18030", try_alternative: bool = True) -> None:
         """
-        ESC t n - Select character code table
+        ESC t n - Select character code table (ou GB18030 sans commande)
         
         Configure la table de caractères (codepage) de l'imprimante.
-        Le codepage cp850 supporte les caractères accentués français (à, é, è, ç, etc.)
-        lorsqu'il est combiné avec international="FRANCE" (R=1).
-        
-        D'après tests/cp437_850.py, il faut R=1 et t=0 pour avoir l'encodage en français.
+        GB18030 est le mode par défaut de l'imprimante et supporte partiellement
+        les caractères accentués français (é, è, ê, ù fonctionnent).
         
         Args:
-            codepage: Nom du codepage ("cp850" ou "cp437")
-            try_alternative: Ignoré, conservé pour compatibilité (toujours t=0 pour cp850)
+            codepage: Nom du codepage ("gb18030", "cp850" ou "cp437")
+            try_alternative: Ignoré, conservé pour compatibilité
         """
         name_low = codepage.lower()
-        if name_low in ("cp437", "437"):
+        if name_low in ("gb18030", "gb"):
+            # GB18030 est le mode par défaut, pas besoin d'envoyer ESC t
+            self.encoding = "gb18030"
+        elif name_low in ("cp437", "437"):
             n = 0
             self.encoding = "cp437"
+            # ESC t n
+            self.raw(b"\x1B\x74" + bytes([n]), description=f"SET_CODEPAGE ({codepage}, n={n})")
         elif name_low in ("cp850", "850"):
             self.encoding = "cp850"
-            # D'après tests/cp437_850.py, t=0 est nécessaire pour l'encodage français avec R=1
-            n = 0
+            # D'après tests/cp437_850.py, t=1 est nécessaire pour l'encodage français avec R=1
+            n = 1
+            # ESC t n
+            self.raw(b"\x1B\x74" + bytes([n]), description=f"SET_CODEPAGE ({codepage}, n={n})")
         else:
             raise ValueError(f"Codepage non supporté: {codepage}")
-        # ESC t n
-        self.raw(b"\x1B\x74" + bytes([n]), description=f"SET_CODEPAGE ({codepage}, n={n})")
 
     def set_international(self, region: str = "FRANCE") -> None:
         """
         ESC R n - International character set
         
         Configure le jeu de caractères internationaux de l'imprimante.
-        IMPORTANT: Pour supporter les accents français (à, é, è, ç, etc.),
-        il faut utiliser region="FRANCE" (R=1) combiné avec codepage="cp850".
+        IMPORTANT: Cette commande n'est pas nécessaire pour GB18030 (mode par défaut).
+        Pour CP850/CP437, utiliser region="FRANCE" (R=1) combiné avec codepage="cp850".
         
         Valeurs supportées (d'après le manuel A2) :
           0: USA, 1: France, 2: Germany, 3: U.K., 4: Denmark I,
@@ -385,6 +427,69 @@ class EscposPrinter(Printer):
         n = (breaktime << 5) + density
         self.raw(b"\x12\x23" + bytes([n]), description=f"SET_DENSITY (density={density}, breaktime={breaktime})")
 
+    def reset_printer_settings(self) -> None:
+        """
+        Réinitialise tous les paramètres d'imprimante à leurs valeurs optimales.
+        À appeler avant chaque test pour garantir des conditions de test fiables.
+        
+        Réinitialise :
+        - Reset de l'imprimante
+        - Codepage: gb18030 (par défaut, mode chinois)
+        - International: FRANCE (seulement pour CP850/CP437)
+        - Heating: dots=7, time=180, interval=2
+        - Density: 15, breaktime=0
+        - Alignement: left
+        - Styles texte: normal
+        
+        Si la connexion série est fermée, elle sera rouverte automatiquement.
+        """
+        # Si la connexion est fermée, la rouvrir
+        if not self._ser or (hasattr(self._ser, 'is_open') and not self._ser.is_open):
+            try:
+                if serial is None:
+                    raise RuntimeError("pyserial n'est pas installé")
+                self._ser = serial.Serial(
+                    self.device,
+                    baudrate=self.baudrate,
+                    bytesize=8,
+                    parity='N',
+                    stopbits=1,
+                    timeout=self.timeout
+                )
+            except Exception as e:
+                print(f"Warning: Could not reopen printer connection: {e}")
+                self._ser = None
+                return
+        
+        # Reset de l'imprimante
+        self.reset()
+        
+        # Configuration de l'encodage
+        # Pour GB18030 (par défaut), pas besoin d'envoyer ESC R ni ESC t
+        # Pour CP850/CP437, il faut ESC R (international) puis ESC t (codepage)
+        if codepage.lower() not in ("gb18030", "gb"):
+            # IMPORTANT: D'abord international (ESC R), puis codepage (ESC t)
+            # L'ordre est crucial : ESC R doit être envoyé avant ESC t
+            self.set_international(international)
+        self.set_codepage(codepage, try_alternative=False)
+        
+        # Paramètres optimaux d'impression
+        self.set_heating(n1=7, n2=180, n3=2)
+        self.set_density(density=15, breaktime=0)
+        
+        # Réinitialiser l'alignement
+        self.set_align("left")
+        
+        # Réinitialiser les styles texte
+        self.set_text_style(size="normal", bold=False, underline=False)
+        
+        # Flush pour s'assurer que toutes les commandes sont envoyées
+        if hasattr(self._ser, 'flush'):
+            self._ser.flush()
+        
+        # Flush le log
+        self._flush_log_buffer()
+
     # ------------- ALIGNEMENT ----------------------------------------
 
     def set_align(self, align: str = "left") -> None:
@@ -403,22 +508,21 @@ class EscposPrinter(Printer):
         Imprime du texte brut (sans ajout de \\n).
         
         Les accents français sont supportés si l'imprimante est configurée avec :
-        - international="FRANCE" (R=1) - configuré par défaut
-        - codepage="cp850" - configuré par défaut
+        - encoding="gb18030" - configuré par défaut (mode chinois de l'imprimante)
         
-        Le texte est encodé selon self.encoding (cp850 par défaut) qui supporte
-        les caractères accentués français.
+        Le texte est encodé selon self.encoding (gb18030 par défaut) qui supporte
+        partiellement les caractères accentués français (é, è, ê, ù fonctionnent).
         """
         if not self._ser:
             return
         
-        # Encoder avec le codepage configuré (cp850 par défaut, supporte les accents)
+        # Encoder avec le codepage configuré (gb18030 par défaut)
         try:
             data = s.encode(self.encoding, errors="replace")
         except (UnicodeEncodeError, LookupError):
-            # Fallback: essayer cp850 si l'encoding n'est pas valide
+            # Fallback: essayer gb18030 si l'encoding n'est pas valide
             try:
-                data = s.encode("cp850", errors="replace")
+                data = s.encode("gb18030", errors="replace")
             except:
                 # Dernier recours: ASCII avec remplacement
                 data = s.encode("ascii", errors="replace")
@@ -432,10 +536,31 @@ class EscposPrinter(Printer):
         """Line feed."""
         self.raw(b"\n" * n)
 
-    def cut(self, full: bool = True) -> None:
-        """Coupe le papier (si supporté)."""
+    def cut(self, full: bool = True, close_after: bool = False) -> None:
+        """
+        Coupe le papier (si supporté).
+        
+        Args:
+            full: True pour coupe complète, False pour coupe partielle
+            close_after: Si True, ferme la connexion série après le cut pour éviter
+                        que des processus système n'écrivent sur le port
+        """
         m = 0 if full else 1
         self.raw(b"\x1D\x56" + bytes([m]), description=f"CUT ({'FULL' if full else 'PARTIAL'})")
+        
+        # Flush complet du buffer série avant la fermeture
+        if close_after and self._ser:
+            try:
+                # Flush les buffers d'écriture
+                if hasattr(self._ser, 'flush'):
+                    self._ser.flush()
+                # Flush le buffer de log
+                self._flush_log_buffer()
+                # Fermer la connexion série immédiatement
+                self._ser.close()
+                self._ser = None
+            except Exception as e:
+                print(f"Warning: Error closing serial connection after cut: {e}")
 
     # ------------- POLICES INTERNES & STYLES (ESC !, ESC M, ESC E, ESC -)
 
@@ -475,13 +600,18 @@ class EscposPrinter(Printer):
     def set_font_internal(self, font: str = "A") -> None:
         """
         Sélectionne la police interne :
-            'A' = large
-            'B' = condensée
+            'A' = large (32 caractères par ligne)
+            'B' = condensée (42 caractères par ligne)
+        
+        Met à jour automatiquement chars_per_line selon la font sélectionnée.
         """
         font = font.upper()
         if font not in ("A", "B"):
             font = "A"
         self._font_internal = font
+        
+        # Mettre à jour la largeur en caractères selon la font
+        self.chars_per_line = 32 if font == "A" else 42
 
         # ESC M n
         n = 0 if font == "A" else 1
@@ -502,6 +632,9 @@ class EscposPrinter(Printer):
     ) -> None:
         """
         Helper haut niveau pour régler les styles internes.
+        
+        Font A = 32 caractères par ligne
+        Font B = 42 caractères par ligne
 
         Exemples :
             set_text_style(font='B', size='ds')    # Font B, double-size
@@ -509,6 +642,8 @@ class EscposPrinter(Printer):
         """
         if font is not None:
             self._font_internal = font.upper() if font.upper() in ("A", "B") else "A"
+            # Mettre à jour la largeur en caractères selon la font
+            self.chars_per_line = 32 if self._font_internal == "A" else 42
             # ESC M pour la police
             n = 0 if self._font_internal == "A" else 1
             self.raw(b"\x1B\x4D" + bytes([n]))
@@ -551,23 +686,30 @@ class EscposPrinter(Printer):
         Imprime un séparateur avec des caractères ASCII simples ou Unicode.
         Utilise du texte simple pour les caractères ASCII, images pour Unicode complexe.
         
+        RECOMMANDÉ: Utiliser '—' (em-dash) qui fonctionne avec GB18030.
+        Éviter les box drawing (═, ─, ━) qui s'affichent en carrés sur l'imprimante A2.
+        
+        Largeur selon la font :
+        - Font A : 32 caractères par ligne
+        - Font B : 42 caractères par ligne
+        
         Args:
-            char: Caractère de séparation ('-', '─', '=', '═', '_', '━')
-            width_chars: Largeur en caractères (défaut: chars_per_line)
+            char: Caractère de séparation ('—' recommandé pour GB18030; éviter '═', '─', '━')
+            width_chars: Largeur en caractères (défaut: chars_per_line selon la font active)
             double: Si True, imprime deux lignes
             font_path: Chemin vers la font à utiliser (uniquement pour Unicode, défaut: default_font_path)
         """
         if not width_chars:
             width_chars = self.chars_per_line
         
-        # Caractères ASCII simples qui peuvent être imprimés directement
-        ascii_chars = {"-", "=", "_"}
+        # Caractères qui peuvent être imprimés directement en texte (ASCII + em-dash compatible GB18030)
+        direct_text_chars = {"-", "=", "_", "—"}
         
         # Caractères Unicode complexes qui nécessitent une image
         unicode_chars = {"─", "═", "━"}
         
-        # Si c'est un caractère ASCII simple, utiliser du texte direct
-        if char in ascii_chars:
+        # Si c'est un caractère qui peut être envoyé directement (ASCII ou em-dash), utiliser du texte direct
+        if char in direct_text_chars:
             line = (char * width_chars)[:width_chars]
             self.line(line)
             if double:
@@ -629,9 +771,10 @@ class EscposPrinter(Printer):
                 self.print_image(img)
                 self.lf(1)
         else:
-            # Fallback: utiliser du texte ASCII si l'image ne peut pas être créée
-            ascii_char = "-" if char in ("-", "─") else "=" if char in ("=", "═") else "_"
-            line = (ascii_char * width_chars)[:width_chars]
+            # Fallback: utiliser du texte direct si l'image ne peut pas être créée
+            # Essayer d'abord l'em-dash (compatible GB18030), sinon ASCII
+            fallback_char = "—" if char in ("—", "─", "═", "━") else ("-" if char in ("-", "─") else ("=" if char in ("=", "═") else "_"))
+            line = (fallback_char * width_chars)[:width_chars]
             self.line(line)
             if double:
                 self.line(line)
@@ -851,6 +994,68 @@ class EscposPrinter(Printer):
         
         return results
 
+    def _split_text_and_emojis(self, text: str) -> list[tuple[str, bool]]:
+        """Sépare le texte en segments texte et emoji.
+        Filtre automatiquement les emojis de drapeaux qui ne sont pas supportés.
+        
+        Args:
+            text: Texte à séparer
+            
+        Returns:
+            Liste de tuples (segment, is_emoji) où is_emoji indique si le segment est un emoji
+        """
+        import re
+        # Pattern pour détecter les emojis de drapeaux (à exclure)
+        flag_pattern = re.compile("[\U0001F1E0-\U0001F1FF]+")
+        
+        # Supprimer les emojis de drapeaux du texte
+        text = flag_pattern.sub("", text)
+        
+        # Pattern pour détecter les autres emojis (sans les drapeaux)
+        emoji_pattern = re.compile(
+            "["
+            "\U0001F600-\U0001F64F"  # Emoticons
+            "\U0001F300-\U0001F5FF"  # Symbols & Pictographs
+            "\U0001F680-\U0001F6FF"  # Transport & Map
+            # "\U0001F1E0-\U0001F1FF"  # Flags - EXCLU
+            "\U00002702-\U000027B0"  # Dingbats
+            "\U000024C2-\U0001F251"  # Enclosed characters
+            "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+            "\U0001FA00-\U0001FA6F"  # Chess Symbols
+            "\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
+            "\U00002600-\U000026FF"  # Miscellaneous Symbols
+            "\U00002700-\U000027BF"  # Dingbats
+            "]+"
+        )
+        
+        segments = []
+        last_end = 0
+        
+        for match in emoji_pattern.finditer(text):
+            # Ajouter le texte avant l'emoji
+            if match.start() > last_end:
+                text_segment = text[last_end:match.start()]
+                if text_segment:
+                    segments.append((text_segment, False))
+            
+            # Ajouter l'emoji
+            emoji_segment = match.group()
+            segments.append((emoji_segment, True))
+            
+            last_end = match.end()
+        
+        # Ajouter le texte restant
+        if last_end < len(text):
+            text_segment = text[last_end:]
+            if text_segment:
+                segments.append((text_segment, False))
+        
+        # Si aucun emoji trouvé, retourner le texte entier comme segment texte
+        if not segments:
+            segments.append((text, False))
+        
+        return segments
+
     def _render_text_to_image(
         self,
         text: str,
@@ -926,6 +1131,258 @@ class EscposPrinter(Printer):
             
             y += h + line_spacing
 
+        return img
+
+    def _wrap_segments_to_width(
+        self,
+        segments: list[tuple[str, bool]],
+        text_font: 'ImageFont.FreeTypeFont',
+        emoji_font: 'ImageFont.FreeTypeFont',
+        max_width: int,
+    ) -> list[list[tuple[str, bool]]]:
+        """Wrap les segments d'une ligne en plusieurs lignes si nécessaire.
+        
+        Args:
+            segments: Liste de tuples (segment, is_emoji)
+            text_font: Font pour le texte
+            emoji_font: Font pour les emojis
+            max_width: Largeur maximale en pixels
+            
+        Returns:
+            Liste de lignes, chaque ligne étant une liste de segments
+        """
+        if max_width <= 0:
+            return [segments] if segments else [[]]
+        
+        wrapped_lines = []
+        current_line = []
+        current_width = 0
+        
+        # Obtenir la largeur d'un espace
+        space_bbox = text_font.getbbox(" ")
+        space_width = space_bbox[2] - space_bbox[0]
+        
+        for segment, is_emoji in segments:
+            font_to_use = emoji_font if is_emoji else text_font
+            bbox = font_to_use.getbbox(segment)
+            segment_width = bbox[2] - bbox[0]
+            
+            # Si c'est un emoji, l'ajouter tel quel (on ne coupe pas les emojis)
+            if is_emoji:
+                if current_width + segment_width > max_width and current_line:
+                    # Nouvelle ligne si nécessaire
+                    wrapped_lines.append(current_line)
+                    current_line = [(segment, True)]
+                    current_width = segment_width
+                else:
+                    current_line.append((segment, True))
+                    current_width += segment_width
+            else:
+                # Pour le texte, on peut couper par mots
+                words = segment.split()
+                
+                for i, word in enumerate(words):
+                    # Ajouter un espace avant le mot (sauf pour le premier mot du segment)
+                    needs_space = i > 0 or (current_line and not current_line[-1][1])
+                    word_space_width = space_width if needs_space else 0
+                    
+                    word_bbox = text_font.getbbox(word)
+                    word_width = word_bbox[2] - word_bbox[0]
+                    
+                    # Si le mot seul dépasse la largeur, on le coupe caractère par caractère
+                    if word_width > max_width:
+                        # D'abord, sauvegarder la ligne actuelle si elle n'est pas vide
+                        if current_line:
+                            wrapped_lines.append(current_line)
+                            current_line = []
+                            current_width = 0
+                        
+                        # Couper le mot caractère par caractère
+                        current_word_segment = ""
+                        for char in word:
+                            char_bbox = text_font.getbbox(char)
+                            char_width = char_bbox[2] - char_bbox[0]
+                            
+                            if current_width + char_width > max_width and current_line:
+                                # Sauvegarder le segment de mot actuel s'il n'est pas vide
+                                if current_word_segment:
+                                    current_line.append((current_word_segment, False))
+                                wrapped_lines.append(current_line)
+                                current_line = [(char, False)]
+                                current_width = char_width
+                                current_word_segment = ""
+                            else:
+                                current_word_segment += char
+                                current_width += char_width
+                        
+                        # Ajouter le reste du mot s'il y en a
+                        if current_word_segment:
+                            if current_line and not current_line[-1][1]:
+                                current_line[-1] = (current_line[-1][0] + current_word_segment, False)
+                            else:
+                                current_line.append((current_word_segment, False))
+                    else:
+                        # Le mot tient, vérifier s'il faut une nouvelle ligne
+                        if current_width + word_space_width + word_width > max_width and current_line:
+                            wrapped_lines.append(current_line)
+                            current_line = [(word, False)]
+                            current_width = word_width
+                        else:
+                            if needs_space and current_line and not current_line[-1][1]:
+                                # Ajouter le mot avec un espace au dernier segment texte
+                                current_line[-1] = (current_line[-1][0] + " " + word, False)
+                            else:
+                                current_line.append((word, False))
+                            current_width += word_space_width + word_width
+        
+        # Ajouter la dernière ligne si elle n'est pas vide
+        if current_line:
+            wrapped_lines.append(current_line)
+        
+        return wrapped_lines if wrapped_lines else [[]]
+
+    def _render_mixed_text_to_image(
+        self,
+        text: str,
+        font_size: int = 24,
+        text_font_size: Optional[int] = None,
+        text_font_path: Optional[str] = None,
+        emoji_font_path: Optional[str] = None,
+        padding: Tuple[int, int, int, int] = (0, 0, 0, 0),
+        align: str = "left",
+    ) -> Optional['Image.Image']:
+        """
+        Rend du texte mixte (texte + emojis) en image avec les fonts appropriées.
+        Utilise text_font_path pour le texte et emoji_font_path pour les emojis.
+        Wrap automatiquement les lignes qui dépassent la largeur du ticket.
+        
+        Args:
+            text: Texte à rendre (peut contenir des emojis)
+            font_size: Taille de la font pour les emojis (défaut: 24)
+            text_font_size: Taille de la font pour le texte (défaut: font_size)
+            text_font_path: Chemin vers la font pour le texte (défaut: default_font_path)
+            emoji_font_path: Chemin vers la font pour les emojis (défaut: _get_emoji_font_path())
+            padding: Padding (left, top, right, bottom)
+            align: Alignement ("left", "center", "right")
+        """
+        if not PIL_AVAILABLE:
+            return None
+        
+        # Utiliser text_font_size si fourni, sinon utiliser font_size
+        actual_text_font_size = text_font_size if text_font_size is not None else font_size
+        
+        # Charger les fonts avec leurs tailles respectives
+        text_font = self._load_font(actual_text_font_size, text_font_path or self.default_font_path)
+        emoji_font = self._load_font(font_size, emoji_font_path or self._get_emoji_font_path())
+        
+        if not text_font:
+            return None
+        
+        # Si pas de font emoji, utiliser la font texte pour tout
+        if not emoji_font:
+            emoji_font = text_font
+        
+        pad_left, pad_top, pad_right, pad_bottom = padding
+        available_width = self.width_px - pad_left - pad_right
+        
+        lines = text.split("\n")
+        # Utiliser la taille de font la plus grande pour l'espacement entre lignes
+        line_spacing = int(max(font_size, actual_text_font_size) * 0.35)
+        
+        # Calculer les dimensions avec wrapping
+        max_w = 0
+        total_h = 0
+        all_wrapped_lines = []
+        
+        for line in lines:
+            if not line.strip():
+                # Ligne vide
+                bbox = text_font.getbbox("Ag")
+                h = bbox[3] - bbox[1]
+                all_wrapped_lines.append([])
+                total_h += h
+                continue
+            
+            # Séparer le texte des emojis
+            segments = self._split_text_and_emojis(line)
+            
+            # Wrapper les segments si nécessaire (utiliser la font texte pour calculer la largeur disponible)
+            wrapped_lines = self._wrap_segments_to_width(segments, text_font, emoji_font, available_width)
+            
+            # Calculer les dimensions pour chaque ligne wrappée
+            for wrapped_segments in wrapped_lines:
+                if not wrapped_segments:
+                    continue
+                
+                line_w = 0
+                line_h = 0
+                for segment, is_emoji in wrapped_segments:
+                    font_to_use = emoji_font if is_emoji else text_font
+                    bbox = font_to_use.getbbox(segment)
+                    w = bbox[2] - bbox[0]
+                    h = bbox[3] - bbox[1]
+                    line_w += w
+                    line_h = max(line_h, h)
+                
+                max_w = max(max_w, line_w)
+                total_h += line_h
+                all_wrapped_lines.append(wrapped_segments)
+            
+            # Ajouter l'espacement entre les lignes wrappées
+            if len(wrapped_lines) > 1:
+                total_h += (len(wrapped_lines) - 1) * line_spacing
+        
+        img_w = min(self.width_px, max_w + pad_left + pad_right)
+        img_h = total_h + pad_top + pad_bottom + (len(all_wrapped_lines) - 1) * line_spacing
+        
+        img = Image.new("L", (img_w, img_h), 255)
+        draw = ImageDraw.Draw(img)
+        
+        y = pad_top
+        for wrapped_segments in all_wrapped_lines:
+            if not wrapped_segments:
+                # Ligne vide
+                bbox = text_font.getbbox("Ag")
+                h = bbox[3] - bbox[1]
+                y += h + line_spacing
+                continue
+            
+            # Calculer la largeur totale de la ligne pour l'alignement
+            line_w = 0
+            line_h = 0
+            for segment, is_emoji in wrapped_segments:
+                font_to_use = emoji_font if is_emoji else text_font
+                bbox = font_to_use.getbbox(segment)
+                w = bbox[2] - bbox[0]
+                h = bbox[3] - bbox[1]
+                line_w += w
+                line_h = max(line_h, h)
+            
+            # Position de départ selon l'alignement
+            if align == "center":
+                x = pad_left + (img_w - pad_left - pad_right - line_w) // 2
+            elif align == "right":
+                x = img_w - pad_right - line_w
+            else:
+                x = pad_left
+            
+            # Dessiner chaque segment avec sa font appropriée
+            for segment, is_emoji in wrapped_segments:
+                font_to_use = emoji_font if is_emoji else text_font
+                
+                try:
+                    bbox = draw.textbbox((x, y), segment, font=font_to_use)
+                    draw.text((x, y), segment, font=font_to_use, fill=0)
+                    # Avancer x pour le prochain segment
+                    x = bbox[2]
+                except AttributeError:
+                    # Ancienne version PIL
+                    draw.text((x, y), segment, font=font_to_use, fill=0)
+                    bbox = font_to_use.getbbox(segment)
+                    x += bbox[2] - bbox[0]
+            
+            y += line_h + line_spacing
+        
         return img
 
     def print_text_image(
@@ -1063,7 +1520,8 @@ class EscposPrinter(Printer):
             align="center",
         )
         if separator:
-            self.separator(char="═", width_chars=self.chars_per_line, font_path=font_path)
+            # Utiliser "—" (em-dash) qui fonctionne avec GB18030 (largeur selon font active)
+            self.separator(char="—", font_path=font_path)
             self.lf(1)
 
     def print_boxed_title(
@@ -1081,8 +1539,9 @@ class EscposPrinter(Printer):
             font_size: Taille de la font
             font_path: Chemin vers la font (défaut: default_font_path)
         """
-        # Séparateur double au-dessus
-        self.separator(char="═", width_chars=self.chars_per_line, double=True, font_path=font_path)
+        # Séparateur double au-dessus (utiliser "—" em-dash qui fonctionne avec GB18030)
+        # Largeur automatique selon la font active (32 pour Font A, 42 pour Font B)
+        self.separator(char="—", double=True, font_path=font_path)
         
         # Titre centré
         self.print_text_image(
@@ -1093,8 +1552,9 @@ class EscposPrinter(Printer):
             align="center",
         )
         
-        # Séparateur double en-dessous
-        self.separator(char="═", width_chars=self.chars_per_line, double=True, font_path=font_path)
+        # Séparateur double en-dessous (utiliser "—" em-dash qui fonctionne avec GB18030)
+        # Largeur automatique selon la font active (32 pour Font A, 42 pour Font B)
+        self.separator(char="—", double=True, font_path=font_path)
         self.lf(1)
 
     def print_paragraph(
@@ -1152,7 +1612,7 @@ class EscposPrinter(Printer):
             return False
 
     def _has_emoji(self, text: str) -> bool:
-        """Check if text contains emojis.
+        """Check if text contains emojis (excluding flags which are not supported).
         
         Args:
             text: Text to check
@@ -1161,13 +1621,17 @@ class EscposPrinter(Printer):
             True if text contains emojis, False otherwise
         """
         import re
-        # Pattern pour détecter les emojis (plages Unicode des emojis)
+        # Supprimer d'abord les emojis de drapeaux
+        flag_pattern = re.compile("[\U0001F1E0-\U0001F1FF]+")
+        text = flag_pattern.sub("", text)
+        
+        # Pattern pour détecter les autres emojis (sans les drapeaux)
         emoji_pattern = re.compile(
             "["
             "\U0001F600-\U0001F64F"  # Emoticons
             "\U0001F300-\U0001F5FF"  # Symbols & Pictographs
             "\U0001F680-\U0001F6FF"  # Transport & Map
-            "\U0001F1E0-\U0001F1FF"  # Flags
+            # "\U0001F1E0-\U0001F1FF"  # Flags - EXCLU
             "\U00002702-\U000027B0"  # Dingbats
             "\U000024C2-\U0001F251"  # Enclosed characters
             "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
@@ -1218,8 +1682,11 @@ class EscposPrinter(Printer):
             # Réinitialiser l'alignement et l'encodage au début
             self.set_align("left")
             # S'assurer que l'encodage est correct (déjà fait dans _init_printer, mais on le réinitialise)
-            self.set_codepage("cp850", try_alternative=False)
-            self.set_international("FRANCE")
+            # Utiliser l'encodage par défaut (gb18030)
+            self.set_codepage(self.encoding if hasattr(self, 'encoding') and self.encoding else "gb18030", try_alternative=False)
+            # Ne pas envoyer ESC R pour GB18030 (mode par défaut)
+            if self.encoding.lower() not in ("gb18030", "gb"):
+                self.set_international("FRANCE")
             
             # Print header images first
             if header_images:
@@ -1238,6 +1705,15 @@ class EscposPrinter(Printer):
                 if '🏙️' in line and 'VILLE DU JOUR' in line:
                     in_city_section = True
                 
+                # Détecter le marqueur pour texte en double taille
+                is_double_size = False
+                if line.startswith("**DOUBLE_SIZE**"):
+                    is_double_size = True
+                    line = line.replace("**DOUBLE_SIZE**", "", 1)
+                    # Appliquer Font A, double taille et centrage
+                    self.set_text_style(font="A", size="ds")  # Font A, double_size = double_width + double_height
+                    self.set_align("center")  # Centrer le texte
+                
                 # Décider si on imprime directement (font interne) ou en image (font custom/emojis)
                 has_emoji = self._has_emoji(line)
                 
@@ -1248,7 +1724,7 @@ class EscposPrinter(Printer):
                         # Vérifier si la ligne contient des caractères non-ASCII (hors accents français supportés)
                         for char in line:
                             code = ord(char)
-                            # ASCII: 0-127, mais on accepte aussi les accents français cp850 (128-255)
+                            # ASCII: 0-127, mais on accepte aussi les caractères encodés en GB18030
                             # Si c'est un caractère Unicode au-delà de 255, c'est spécial
                             if code > 255 and char not in ['\n', '\r', '\t']:
                                 has_special_unicode = True
@@ -1262,23 +1738,33 @@ class EscposPrinter(Printer):
                     # Imprimer directement avec les fonts internes de l'imprimante
                     self.line(line)
                     self.lf(1)  # Interligne supplémentaire
+                    # Réinitialiser le style après le texte en double taille
+                    if is_double_size:
+                        self.set_align("left")  # Réinitialiser l'alignement
+                        self.set_text_style(size="normal")
                 else:
                     # Convertir en image (emojis ou caractères spéciaux)
-                    font_path = self.default_font_path
                     if has_emoji:
-                        # Utiliser la font emoji si disponible
-                        emoji_font = self._get_emoji_font_path()
-                        if emoji_font:
-                            font_path = emoji_font
-                    
-                    # Convert line to image (handles emojis and special chars)
-                    img = self._render_text_to_image(
-                        text=line,
-                        font_size=20,
-                        font_path=font_path,
-                        padding=(0, 0, 0, 0),
-                        align="left",
-                    )
+                        # Utiliser _render_mixed_text_to_image pour séparer texte et emojis
+                        # Font texte plus petite (16px) pour mieux s'adapter, font emoji normale (20px)
+                        img = self._render_mixed_text_to_image(
+                            text=line,
+                            font_size=20,  # Taille de base pour les emojis
+                            text_font_size=16,  # Taille réduite pour le texte
+                            text_font_path=self.default_font_path,
+                            emoji_font_path=self._get_emoji_font_path(),
+                            padding=(0, 0, 0, 0),
+                            align="left",
+                        )
+                    else:
+                        # Pas d'emojis mais caractères spéciaux, utiliser _render_text_to_image avec taille réduite
+                        img = self._render_text_to_image(
+                            text=line,
+                            font_size=16,  # Taille réduite pour le texte
+                            font_path=self.default_font_path,
+                            padding=(0, 0, 0, 0),
+                            align="left",
+                        )
                     
                     if img:
                         # Réinitialiser l'alignement après l'image
@@ -1290,6 +1776,11 @@ class EscposPrinter(Printer):
                         # Fallback: try to print text directly
                         self.line(line)
                         self.lf(1)
+                    
+                    # Réinitialiser le style après le texte en double taille
+                    if is_double_size:
+                        self.set_align("left")  # Réinitialiser l'alignement
+                        self.set_text_style(size="normal")
                 
                 # Insérer l'image de ville après le titre de la section ville
                 if in_city_section and not city_image_inserted and city_images:
@@ -1307,7 +1798,9 @@ class EscposPrinter(Printer):
             
             # Feed and cut
             self.lf(1)
-            self.cut()
+            # Fermer proprement la connexion après le cut pour éviter que des processus
+            # système (Raspbian, getty, etc.) n'écrivent sur le port série
+            self.cut(full=True, close_after=True)
             
             return True
         except Exception as e:

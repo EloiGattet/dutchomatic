@@ -2,8 +2,7 @@
 
 from collections import defaultdict
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, jsonify
-from src.web.app import storage
+from flask import Blueprint, render_template, jsonify, current_app
 
 bp = Blueprint('stats', __name__, url_prefix='/stats')
 
@@ -11,6 +10,7 @@ bp = Blueprint('stats', __name__, url_prefix='/stats')
 @bp.route('/')
 def index():
     """Statistics page."""
+    storage = current_app.extensions['storage']
     exercises = storage.get_all_exercises()
     state = storage.get_state()
     history = state.get('history', [])
@@ -62,6 +62,7 @@ def index():
 @bp.route('/api/data')
 def api_data():
     """API endpoint for stats data."""
+    storage = current_app.extensions['storage']
     exercises = storage.get_all_exercises()
     state = storage.get_state()
     history = state.get('history', [])

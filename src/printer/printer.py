@@ -155,9 +155,9 @@ def get_printer(config_path: Optional[str] = None) -> Printer:
     elif printer_type == 'visual_simulator':
         from .visual_simulator import VisualSimulatorPrinter
         width_px = config.get('width_px', 384)
-        codepage = config.get('codepage', 'cp850')
+        codepage = config.get('codepage', 'gb18030')
         international = config.get('international', 'FRANCE')
-        default_encoding = config.get('default_encoding', 'cp850')
+        default_encoding = config.get('default_encoding', 'gb18030')
         default_font_path = config.get('default_font_path')
         if not default_font_path:
             project_root = Path(__file__).parent.parent.parent
@@ -184,9 +184,9 @@ def get_printer(config_path: Optional[str] = None) -> Printer:
         baudrate = config.get('baudrate', 9600)
         timeout = config.get('timeout', 1)
         width_px = config.get('width_px', 384)  # 384px pour 58mm
-        codepage = config.get('codepage', 'cp850')
+        codepage = config.get('codepage', 'gb18030')
         international = config.get('international', 'FRANCE')
-        default_encoding = config.get('default_encoding', 'cp850')
+        default_encoding = config.get('default_encoding', 'gb18030')
         
         # Chercher la font par défaut (Roboto-Bold)
         default_font_path = config.get('default_font_path')
